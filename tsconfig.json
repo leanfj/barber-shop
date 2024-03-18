@@ -1,0 +1,38 @@
+{
+  "compilerOptions":{
+	  "target":"es2017",
+	  "module":"commonjs",
+	  "outDir":"./dist",
+	  "rootDir":"./src",
+	  "strict":true,
+	  "strictPropertyInitialization":false,
+	  "baseUrl":"./src",
+	  "allowJs":true,
+	  "paths":{
+		  "@application/*":[
+			  "application/*"
+		  ]
+	  },
+	  "esModuleInterop":true,
+	  "moduleResolution":"node",
+	  "skipLibCheck":true,
+	  "types":[
+		  "jest",
+		  "node"
+	  ],
+	  "resolveJsonModule":true,
+	  "sourceMap":true,
+	  "forceConsistentCasingInFileNames":true
+  },
+  "include":[
+	  "./src/**/*.ts",
+	  "./src/**/*.js",
+	  "./__test__/**/*.ts"
+  ],
+  "exclude":[
+	  "node_modules",
+	  "!node_modules/@types",
+	  "./dist",
+	  "src/**/*= JSON.parse(decodeURIComponent(request.body)ts"
+  ]
+}
