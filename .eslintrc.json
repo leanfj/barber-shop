@@ -9,11 +9,5 @@
     "sourceType": "module"
   },
   "rules": {},
-  "plugins": ["@typescript-eslint", "prettier"],
-  "overrides": [
-    {
-      "files": ["*.js", "*.jsx", "*.ts", "*.tsx"],
-      "extends": "love"
-    }
-  ]
+  "plugins": ["@typescript-eslint", "prettier"]
 }
