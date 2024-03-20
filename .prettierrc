@@ -5,7 +5,7 @@
     "singleQuote": true,
     "semi": true,
     "quoteProps": "as-needed",
-    "trailingComma": "none",
+    "trailingComma": "all",
     "bracketSpacing": true,
     "bracketSameLine": false
 }
