@@ -1,6 +1,7 @@
-import Entity from 'core/domain/entities/Entity';
+import Entity from '@core:domain/entities/Entity';
+import type CPF from '@core:domain/valueObjects/CPF';
+import type Email from '@core:domain/valueObjects/Email';
 import { type UniqueEntityId } from 'core/domain/entities/UniqueEntityId';
-import type Email from 'core/domain/valueObjects/Email';
 
 interface ClienteProps {
   id?: string;
@@ -12,13 +13,13 @@ interface ClienteProps {
   cidade: string;
   estado: string;
   cep: string;
-  cpf: string;
-  dataEvento: Date;
+  cpf: CPF;
   dataCadastro?: Date;
   dataAtualizacao?: Date;
+  dataNascimento?: Date;
 }
 
-export class Cliente extends Entity<ClienteProps> {
+export default class Cliente extends Entity<ClienteProps> {
   constructor(props: ClienteProps, id?: UniqueEntityId) {
     super(props, id);
   }
@@ -60,7 +61,7 @@ export class Cliente extends Entity<ClienteProps> {
   }
 
   get cpf(): string {
-    return this.props.cpf;
+    return this.props.cpf.getValue();
   }
 
   get dataCadastro(): Date | undefined {
@@ -69,6 +70,22 @@ export class Cliente extends Entity<ClienteProps> {
 
   get dataAtualizacao(): Date | undefined {
     return this.props.dataAtualizacao;
+  }
+
+  get dataNascimento(): Date | undefined {
+    return this.props.dataNascimento;
+  }
+
+  public calculaIdade(): number {
+    if (this.dataNascimento === null || this.dataNascimento === undefined) {
+      return 0;
+    }
+
+    const diff = Date.now() - this.dataNascimento.getTime();
+    const ageDate = new Date(diff);
+    const ages = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+    return ages;
   }
 
   static create(props: ClienteProps, id?: UniqueEntityId): Cliente {

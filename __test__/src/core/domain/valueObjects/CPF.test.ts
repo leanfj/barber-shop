@@ -1,4 +1,4 @@
-import CPF from '../../../../../src/core/domain/valueObjects/CPF';
+import CPF from '@core:domain/valueObjects/CPF';
 
 describe('CPF Value Object', () => {
   test('should create a valid CPF', () => {
