@@ -59,9 +59,6 @@
     ],
     "*.{json,js,ts,jsx,tsx,html}": [
       "prettier --write --ignore-unknown"
-    ],
-    "*.{js,jsx,ts,tsx}": [
-      "snyk test"
     ]
   }
 }
