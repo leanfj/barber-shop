@@ -60,5 +60,8 @@
     "*.{json,js,ts,jsx,tsx,html}": [
       "prettier --write --ignore-unknown"
     ]
+  },
+  "dependencies": {
+    "zod": "^3.22.4"
   }
 }
