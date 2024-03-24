@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export default class Email {
   private value: string;
 
@@ -10,14 +12,9 @@ export default class Email {
   }
 
   private setValue(value: string): void {
-    if (!this.isValid(value)) {
-      throw new Error('Email inválido');
-    }
-    this.value = value;
-  }
+    const valueSchema = z.string().email({ message: 'Email inválido' });
+    const valueParsed = valueSchema.parse(value);
 
-  private isValid(email: string): boolean {
-    const emailRegex = /\S+@\S+\.\S+/;
-    return emailRegex.test(email);
+    this.value = valueParsed;
   }
 }

@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export default class CPF {
   private value: string;
 
@@ -10,52 +12,51 @@ export default class CPF {
   }
 
   private setValue(value: string): void {
-    if (!this.isValid(value)) {
-      throw new Error('CPF inválido');
-    }
-    this.value = value;
+    const valueSchema = z.string().refine((cpf: string) => {
+      if (cpf === null || cpf === undefined) {
+        return false;
+      }
+
+      cpf = cpf.replace(/[^\d]+/g, '');
+
+      if (CPF.isValueMoreThanElevenDigits(cpf)) {
+        return false;
+      }
+      if (CPF.isValueRepeated(cpf)) {
+        return false;
+      }
+      if (!CPF.isCPFWithValidDigits(cpf)) {
+        return false;
+      }
+
+      return true;
+    }, 'CPF inválido.');
+
+    const valueParsed = valueSchema.parse(value);
+
+    this.value = valueParsed;
   }
 
-  private isValid(cpf: string): boolean {
-    const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+  private static isValueMoreThanElevenDigits(value: string): boolean {
+    return value.length > 11;
+  }
 
-    const cpfWithoutMask = cpf.replace(/\D/g, '');
+  private static isValueRepeated(value: string): boolean {
+    return value.match(/(\d)\1{10}/) !== null;
+  }
 
-    if (cpfWithoutMask.length !== 11) {
-      return false;
-    }
-
-    // Regra de calculo do dígito verificador
-    let sum = 0;
-    let rest;
-    for (let i = 1; i <= 9; i++) {
-      sum = sum + parseInt(cpfWithoutMask.substring(i - 1, i)) * (11 - i);
-    }
-    rest = (sum * 10) % 11;
-
-    if (rest === 10 || rest === 11) {
-      rest = 0;
-    }
-
-    if (rest !== parseInt(cpfWithoutMask.substring(9, 10))) {
-      return false;
-    }
-
-    sum = 0;
-    for (let i = 1; i <= 10; i++) {
-      sum = sum + parseInt(cpfWithoutMask.substring(i - 1, i)) * (12 - i);
-    }
-
-    rest = (sum * 10) % 11;
-
-    if (rest === 10 || rest === 11) {
-      rest = 0;
-    }
-
-    if (rest !== parseInt(cpfWithoutMask.substring(10, 11))) {
-      return false;
-    }
-
-    return cpfRegex.test(cpf);
+  private static isCPFWithValidDigits(value: string): boolean {
+    const digitosCPF = value.split('').map((el) => +el);
+    const rest = (count: number): number => {
+      return (
+        ((digitosCPF
+          .slice(0, count - 12)
+          .reduce((soma, el, index) => soma + el * (count - index), 0) *
+          10) %
+          11) %
+        10
+      );
+    };
+    return rest(10) === digitosCPF[9] && rest(11) === digitosCPF[10];
   }
 }
