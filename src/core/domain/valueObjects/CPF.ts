@@ -6,8 +6,6 @@ interface CPFProps {
 }
 
 export default class CPF extends ValueObject<CPFProps> {
-  private readonly value: string;
-
   constructor(props: CPFProps) {
     super(props);
   }
@@ -35,7 +33,7 @@ export default class CPF extends ValueObject<CPFProps> {
       }
 
       return true;
-    }, 'CPF inválido.');
+    }, 'CPF inválido');
 
     const valueParsed = valueSchema.parse(value);
 

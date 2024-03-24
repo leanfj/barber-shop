@@ -1,20 +1,23 @@
 import { z } from 'zod';
+import { ValueObject } from './ValueObjects';
 
-export default class Email {
-  private value: string;
+interface EmailProps {
+  value: string;
+}
 
-  constructor(value: string) {
-    this.setValue(value);
+export default class Email extends ValueObject<EmailProps> {
+  constructor(props: EmailProps) {
+    super(props);
   }
 
   getValue(): string {
-    return this.value;
+    return this.props.value;
   }
 
-  private setValue(value: string): void {
+  public static setValue(value: string): Email {
     const valueSchema = z.string().email({ message: 'Email inválido' });
     const valueParsed = valueSchema.parse(value);
 
-    this.value = valueParsed;
+    return new Email({ value: valueParsed });
   }
 }
