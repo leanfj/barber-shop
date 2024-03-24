@@ -2,10 +2,13 @@ import CPF from '@core:domain/valueObjects/CPF';
 
 describe('CPF Value Object', () => {
   test('should create a valid CPF', () => {
-    const cpf = new CPF('155.766.660-11');
+    const cpf = CPF.setValue('155.766.660-11');
     expect(cpf.getValue()).toBe('155.766.660-11');
   });
   test('should create an error on invalid CPF', () => {
-    expect(() => new CPF('155.766.660-12')).toThrow('CPF inválido');
+    expect(() => {
+      const cpf = CPF.setValue('155.766.660-12');
+      return cpf;
+    }).toThrow('CPF inválido');
   });
 });

@@ -5,7 +5,7 @@ import Cliente from '@modules/clientes/domain/entities/Cliente';
 
 describe('Cliente', () => {
   it('should create a new Cliente', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@email.com');
     const clientId = new UniqueEntityId();
     const clienteData = {
@@ -32,7 +32,7 @@ describe('Cliente', () => {
   });
 
   it('should return the correct dataNascimento', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@email.com');
     const clientId = new UniqueEntityId();
 
@@ -57,7 +57,7 @@ describe('Cliente', () => {
   });
 
   it('should return the correct nome', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@example.com');
     const clientId = new UniqueEntityId();
 
@@ -82,7 +82,7 @@ describe('Cliente', () => {
   });
 
   it('should calculate the correct age', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@example.com');
     const clientId = new UniqueEntityId();
 
@@ -110,7 +110,7 @@ describe('Cliente', () => {
   // Existing tests...
 
   it('should calculate the correct age', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@example.com');
     const clientId = new UniqueEntityId();
 
@@ -135,7 +135,7 @@ describe('Cliente', () => {
   });
 
   it('should return 0 if dataNascimento is null', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@example.com');
     const clientId = new UniqueEntityId();
 
@@ -160,7 +160,7 @@ describe('Cliente', () => {
   });
 
   it('should return 0 if dataNascimento is undefined', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@example.com');
     const clientId = new UniqueEntityId();
 
@@ -184,7 +184,7 @@ describe('Cliente', () => {
     expect(cliente.calculaIdade()).toBe(0);
   });
   it('should create a new Cliente using static create method', () => {
-    const clienteCPF = new CPF('155.766.660-11');
+    const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = new Email('email@example.com');
     const clientId = new UniqueEntityId();
 

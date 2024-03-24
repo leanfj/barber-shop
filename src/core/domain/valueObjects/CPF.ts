@@ -1,17 +1,22 @@
 import { z } from 'zod';
+import { ValueObject } from './ValueObjects';
 
-export default class CPF {
-  private value: string;
+interface CPFProps {
+  value: string;
+}
 
-  constructor(value: string) {
-    this.setValue(value);
+export default class CPF extends ValueObject<CPFProps> {
+  private readonly value: string;
+
+  constructor(props: CPFProps) {
+    super(props);
   }
 
   getValue(): string {
-    return this.value;
+    return this.props.value;
   }
 
-  private setValue(value: string): void {
+  public static setValue(value: string): CPF {
     const valueSchema = z.string().refine((cpf: string) => {
       if (cpf === null || cpf === undefined) {
         return false;
@@ -34,7 +39,7 @@ export default class CPF {
 
     const valueParsed = valueSchema.parse(value);
 
-    this.value = valueParsed;
+    return new CPF({ value: valueParsed });
   }
 
   private static isValueMoreThanElevenDigits(value: string): boolean {
