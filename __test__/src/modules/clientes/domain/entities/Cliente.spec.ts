@@ -1,4 +1,4 @@
-import { UniqueEntityId } from '@core:domain/entities/UniqueEntityId';
+import UniqueEntityId from '@core:domain/entities/UniqueEntityId';
 import CPF from '@core:domain/valueObjects/CPF';
 import Email from '@core:domain/valueObjects/Email';
 import Cliente from '@modules/clientes/domain/entities/Cliente';

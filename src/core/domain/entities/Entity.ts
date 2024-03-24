@@ -1,4 +1,4 @@
-import { UniqueEntityId } from './UniqueEntityId';
+import UniqueEntityId from './UniqueEntityId';
 
 export default abstract class Entity<T> {
   protected readonly _id: UniqueEntityId;
