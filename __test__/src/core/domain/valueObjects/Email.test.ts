@@ -3,7 +3,7 @@ import Email from '@core:domain/valueObjects/Email';
 describe('Email', () => {
   it('should create a new Email', () => {
     const validEmail = 'test@example.com';
-    const email = new Email(validEmail);
+    const email = Email.setValue(validEmail);
 
     expect(email).toBeInstanceOf(Email);
     expect(email.getValue()).toBe(validEmail);
@@ -13,7 +13,7 @@ describe('Email', () => {
     const invalidEmail = 'invalidemail';
 
     expect(() => {
-      const email = new Email(invalidEmail);
+      const email = Email.setValue(invalidEmail);
       return email;
     }).toThrow('Email inválido');
   });
