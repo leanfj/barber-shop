@@ -1,7 +1,7 @@
-const data: string = 'Hello, world!';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require('dotenv').config({
+  path: process.env.NODE_ENV === 'development' ? '.env.development' : '.env',
+});
 
-function logData(data: string): string {
-  return `Data: ${data}`;
-}
-
-export { data, logData };
+// eslint-disable-next-line import/first
+import './core/infrastructure/http/server';

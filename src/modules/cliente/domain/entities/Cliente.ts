@@ -1,7 +1,7 @@
-import Entity from '@core:domain/entities/Entity';
-import type CPF from '@core:domain/valueObjects/CPF';
-import type Email from '@core:domain/valueObjects/Email';
-import type UniqueEntityId from '@core:domain/entities/UniqueEntityId';
+import Entity from '../../../../core/domain/entities/Entity';
+import type CPF from '../../../../core/domain/valueObjects/CPF';
+import type Email from '../../../../core/domain/valueObjects/Email';
+import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
 
 interface ClienteProps {
   id?: string;

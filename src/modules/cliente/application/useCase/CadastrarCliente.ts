@@ -1,9 +1,17 @@
-import { type IUseCase } from '@core:application/useCase/IUseCase';
-import CPF from '@core:domain/valueObjects/CPF';
-import Email from '@core:domain/valueObjects/Email';
-import Cliente from '@modules/cliente/domain/entities/Cliente';
-import type IClienteRepository from '@modules/cliente/domain/repositories/IClienteRepository';
 import { ZodError } from 'zod';
+import { CadastartClienteErrors } from './CadastrarCliente.errors';
+import { AppError } from '../../../../core/application/AppError';
+import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
+import CPF from '../../../../core/domain/valueObjects/CPF';
+import Email from '../../../../core/domain/valueObjects/Email';
+import {
+  type Either,
+  Result,
+  left,
+  right,
+} from '../../../../core/logic/Result';
+import Cliente from '../../../../modules/cliente/domain/entities/Cliente';
+import type IClienteRepository from '../../../../modules/cliente/domain/repositories/IClienteRepository';
 
 export interface CadastrarClienteInput {
   nome: string;
@@ -20,31 +28,13 @@ export interface CadastrarClienteInput {
   dataAtualizacao: Date;
 }
 
-export interface CadastrarClienteSucesso {
-  type: 'CadastrarClienteSucesso';
-}
-
-export interface ClienteJaCadastradoErro {
-  type: 'ClienteJaCadastradoErro';
-}
-
-export interface InformacoesClienteInvalidasErro {
-  type: 'InformacoesClienteInvalidasErro';
-  message: string;
-}
-
-export interface UnexpectedError {
-  type: 'UnexpectedError';
-}
-
-export type CadastrarClienteOutput =
-  | CadastrarClienteSucesso
-  | ClienteJaCadastradoErro
-  | InformacoesClienteInvalidasErro
-  | UnexpectedError;
+export type CadastrarClienteOutput = Either<
+  AppError.UnexpectedError,
+  Result<Cliente>
+>;
 
 export default class CadastrarCliente
-  implements IUseCase<CadastrarClienteInput, CadastrarClienteOutput>
+  implements IUseCase<CadastrarClienteInput, Promise<CadastrarClienteOutput>>
 {
   constructor(private readonly clienteRepository: IClienteRepository) {}
 
@@ -52,7 +42,7 @@ export default class CadastrarCliente
     const existingCliente = await this.clienteRepository.findByNome(input.nome);
 
     if (existingCliente != null) {
-      return { type: 'ClienteJaCadastradoErro' };
+      return left(new CadastartClienteErrors.ClienteAlreadyExists(input.nome));
     }
 
     try {
@@ -72,15 +62,13 @@ export default class CadastrarCliente
       });
 
       await this.clienteRepository.save(cliente);
+
+      return right(Result.ok<Cliente>(cliente));
     } catch (error) {
       if (error instanceof ZodError) {
-        return {
-          type: 'InformacoesClienteInvalidasErro',
-          message: error.issues.map((issue) => issue.message).join(', '),
-        };
+        return left(new CadastartClienteErrors.InvalidData(error));
       }
+      return left(new AppError.UnexpectedError(error));
     }
-
-    return { type: 'CadastrarClienteSucesso' };
   }
 }
