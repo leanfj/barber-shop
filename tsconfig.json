@@ -8,10 +8,6 @@
     "strictPropertyInitialization": false,
     "baseUrl": "./src",
     "allowJs": true,
-    "paths": {
-      "@modules/*": ["modules/*"],
-      "@core:*": ["core/*"]
-    },
     "esModuleInterop": true,
     "moduleResolution": "node",
     "skipLibCheck": true,

@@ -9,7 +9,8 @@
     "sourceType": "module"
   },
   "rules": {
-    "@typescript-eslint/no-useless-constructor": "off"
+    "@typescript-eslint/no-useless-constructor": "off",
+    "@typescript-eslint/no-namespace": "off"
   },
   "plugins": ["@typescript-eslint", "prettier"]
 }

@@ -4,15 +4,6 @@ module.exports = {
     ['@babel/preset-typescript'],
   ],
   plugins: [
-    [
-      'module-resolver',
-      {
-        alias: {
-          '@modules': './src/modules',
-          '@core': './src/core',
-        },
-      },
-    ],
     ['@babel/plugin-transform-typescript', { allowDeclareFields: true }],
   ],
 };
