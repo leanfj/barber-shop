@@ -14,7 +14,10 @@
     "types": ["jest", "node"],
     "resolveJsonModule": true,
     "sourceMap": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@/*": ["*"]
+    }
   },
   "include": ["./src/**/*.ts", "./src/**/*.js", "./__test__/**/*.ts"],
   "exclude": [

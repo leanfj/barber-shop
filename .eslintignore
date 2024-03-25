@@ -1,3 +1,6 @@
 commitlint.config.ts
 babel.config.js
 jest.config.ts
+jest.config.unit.ts
+jest.config.infra.ts
+jest.config.e2e.ts
