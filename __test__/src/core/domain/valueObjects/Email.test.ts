@@ -1,4 +1,4 @@
-import Email from '@core:domain/valueObjects/Email';
+import Email from '../../../../../src/core/domain/valueObjects/Email';
 
 describe('Email', () => {
   it('should create a new Email', () => {

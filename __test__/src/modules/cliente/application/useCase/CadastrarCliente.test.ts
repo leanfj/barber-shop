@@ -1,8 +1,10 @@
+import { type UseCaseError } from '../../../../../../src/core/application/useCase/UseCaseError';
 import CadastrarCliente, {
   type CadastrarClienteInput,
-} from '@modules/cliente/application/useCase/CadastrarCliente';
-import type IClienteRepository from '@modules/cliente/domain/repositories/IClienteRepository';
-import InMemoryClienteRepository from '@modules/cliente/infrastructure/repositories/InMemoryCliente';
+} from '../../../../../../src/modules/cliente/application/useCase/CadastrarCliente';
+import type Cliente from '../../../../../../src/modules/cliente/domain/entities/Cliente';
+import type IClienteRepository from '../../../../../../src/modules/cliente/domain/repositories/IClienteRepository';
+import InMemoryClienteRepository from '../../../../../../src/modules/cliente/infrastructure/repositories/InMemoryCliente';
 
 describe('CadastrarCliente', () => {
   let cadastrarCliente: CadastrarCliente;
@@ -30,15 +32,16 @@ describe('CadastrarCliente', () => {
 
   it('should return CadastrarClienteSucesso if cliente is successfully created', async () => {
     const result = await cadastrarCliente.execute(input);
-
-    expect(result.type).toBe('CadastrarClienteSucesso');
+    const cliente = result.value.getValue() as Cliente;
+    expect(cliente.nome).toBe('John Doe');
   });
 
   it('should return ClienteJaCadastradoErro if cliente with the same nome already exists', async () => {
     await cadastrarCliente.execute(input);
     const result = await cadastrarCliente.execute(input);
+    const cliente = result.value.getErrorValue() as UseCaseError;
 
-    expect(result.type).toBe('ClienteJaCadastradoErro');
+    expect(cliente.message).toBe('Cliente com nome John Doe já existe.');
   });
 
   it('should return InformacoesClienteInvalidasErro if cpf is invalid', async () => {
@@ -47,10 +50,9 @@ describe('CadastrarCliente', () => {
       cpf: '155.766.660-12',
     });
 
-    expect(result.type).toBe('InformacoesClienteInvalidasErro');
-    if (result.type === 'InformacoesClienteInvalidasErro') {
-      expect(result.message).toBe('CPF inválido');
-    }
+    const cliente = result.value.getErrorValue() as UseCaseError;
+
+    expect(cliente.message).toBe('CPF inválido');
   });
 
   it('should return InformacoesClienteInvalidasErro if email is invalid', async () => {
@@ -59,15 +61,16 @@ describe('CadastrarCliente', () => {
       email: 'email@@email.com',
     });
 
-    expect(result.type).toBe('InformacoesClienteInvalidasErro');
-    if (result.type === 'InformacoesClienteInvalidasErro') {
-      expect(result.message).toBe('Email inválido');
-    }
+    const cliente = result.value.getErrorValue() as UseCaseError;
+
+    expect(cliente.message).toBe('Email inválido');
   });
 
   it.skip('should return UnexpectedError if an error occurs while saving the cliente', async () => {
     const result = await cadastrarCliente.execute(input);
 
-    expect(result.type).toBe('UnexpectedError');
+    const cliente = result.value.getErrorValue() as UseCaseError;
+
+    expect(cliente.message).toBe('UnexpectedError');
   });
 });

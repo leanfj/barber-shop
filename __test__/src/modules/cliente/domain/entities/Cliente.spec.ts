@@ -1,7 +1,7 @@
-import UniqueEntityId from '@core:domain/entities/UniqueEntityId';
-import CPF from '@core:domain/valueObjects/CPF';
-import Email from '@core:domain/valueObjects/Email';
-import Cliente from '@modules/cliente/domain/entities/Cliente';
+import UniqueEntityId from '../../../../../../src/core/domain/entities/UniqueEntityId';
+import CPF from '../../../../../../src/core/domain/valueObjects/CPF';
+import Email from '../../../../../../src/core/domain/valueObjects/Email';
+import Cliente from '../../../../../../src/modules/cliente/domain/entities/Cliente';
 
 describe('Cliente', () => {
   it('should create a new Cliente', () => {
