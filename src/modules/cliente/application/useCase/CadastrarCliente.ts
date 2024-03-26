@@ -14,6 +14,7 @@ import Cliente from '../../../../modules/cliente/domain/entities/Cliente';
 import type IClienteRepository from '../../../../modules/cliente/domain/repositories/IClienteRepository';
 
 export interface CadastrarClienteInput {
+  tenantId: string;
   nome: string;
   email: string;
   telefone: string;
@@ -39,14 +40,19 @@ export default class CadastrarCliente
   constructor(private readonly clienteRepository: IClienteRepository) {}
 
   async execute(input: CadastrarClienteInput): Promise<CadastrarClienteOutput> {
-    const existingCliente = await this.clienteRepository.findByNome(input.nome);
-
-    if (existingCliente != null) {
-      return left(new CadastartClienteErrors.ClienteAlreadyExists(input.nome));
-    }
-
     try {
+      const existingCliente = await this.clienteRepository.findByNome(
+        input.nome,
+      );
+
+      if (existingCliente != null) {
+        return left(
+          new CadastartClienteErrors.ClienteAlreadyExists(input.nome),
+        );
+      }
+
       const cliente = Cliente.create({
+        tenantId: input.tenantId, // TODO - Pegar o valor de tenant
         nome: input.nome,
         email: Email.setValue(input.email),
         telefone: input.telefone,

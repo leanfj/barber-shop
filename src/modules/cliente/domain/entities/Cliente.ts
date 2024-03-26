@@ -5,6 +5,7 @@ import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId
 
 interface ClienteProps {
   id?: string;
+  tenantId: string;
   nome: string;
   email: Email;
   genero: string;
@@ -26,6 +27,10 @@ export default class Cliente extends Entity<ClienteProps> {
 
   get id(): UniqueEntityId {
     return this._id;
+  }
+
+  get tenantId(): string {
+    return this.props.tenantId;
   }
 
   get nome(): string {
