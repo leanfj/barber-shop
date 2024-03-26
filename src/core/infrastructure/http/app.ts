@@ -45,12 +45,12 @@ export default class App {
   }
 
   private initializeMiddlewares(): void {
+    this.app.use(express.json());
     this.app.use(
       express.text({
         type: '*/*',
       }),
     );
-    this.app.use(express.json());
 
     this.app.use(
       cors({
