@@ -19,7 +19,12 @@
       "@/*": ["*"]
     }
   },
-  "include": ["./src/**/*.ts", "./src/**/*.js", "./__test__/**/*.ts"],
+  "include": [
+    "./src/**/*.ts",
+    "./src/**/*.js",
+    "./__test__/**/*.ts",
+    "__test__/src/modules/usuario/application/useCase/CadastraUsuario.useCase.e2ets"
+  ],
   "exclude": [
     "node_modules",
     "!node_modules/@types",
