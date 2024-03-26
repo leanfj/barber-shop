@@ -1,3 +1,4 @@
+import Tenant from '../../../../../../src/modules/tenant/domain/entities/Tenant';
 import UniqueEntityId from '../../../../../../src/core/domain/entities/UniqueEntityId';
 import CPF from '../../../../../../src/core/domain/valueObjects/CPF';
 import Email from '../../../../../../src/core/domain/valueObjects/Email';
@@ -8,7 +9,17 @@ describe('Cliente', () => {
     const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = Email.setValue('email@email.com');
     const clientId = new UniqueEntityId();
+    const tenant = new Tenant(
+      {
+        nome: 'Teste',
+        isAtivo: true,
+        dataCadastro: new Date(),
+        dataAtualizacao: new Date(),
+      },
+      new UniqueEntityId(),
+    );
     const clienteData = {
+      tenantId: tenant.id.toString(),
       nome: 'John Doe',
       email: clienteEmail,
       genero: 'M',
@@ -29,14 +40,25 @@ describe('Cliente', () => {
     expect(cliente.cpf).toBe(clienteCPF.getValue());
     expect(cliente.email).toBe(clienteEmail.getValue());
     expect(cliente.id).toBe(clientId);
+    expect(cliente.tenantId).toBe(tenant.id.toString());
   });
 
   it('should return the correct dataNascimento', () => {
     const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = Email.setValue('email@email.com');
     const clientId = new UniqueEntityId();
+    const tenant = new Tenant(
+      {
+        nome: 'Teste',
+        isAtivo: true,
+        dataCadastro: new Date(),
+        dataAtualizacao: new Date(),
+      },
+      new UniqueEntityId(),
+    );
 
     const clienteData = {
+      tenantId: tenant.id.toString(),
       nome: 'John Doe',
       email: clienteEmail,
       genero: 'M',
@@ -60,8 +82,17 @@ describe('Cliente', () => {
     const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = Email.setValue('email@example.com');
     const clientId = new UniqueEntityId();
-
+    const tenant = new Tenant(
+      {
+        nome: 'Teste',
+        isAtivo: true,
+        dataCadastro: new Date(),
+        dataAtualizacao: new Date(),
+      },
+      new UniqueEntityId(),
+    );
     const clienteData = {
+      tenantId: tenant.id.toString(),
       nome: 'Jane Doe',
       email: clienteEmail,
       genero: 'F',
@@ -85,8 +116,18 @@ describe('Cliente', () => {
     const clienteCPF = CPF.setValue('155.766.660-11');
     const clienteEmail = Email.setValue('email@example.com');
     const clientId = new UniqueEntityId();
+    const tenant = new Tenant(
+      {
+        nome: 'Teste',
+        isAtivo: true,
+        dataCadastro: new Date(),
+        dataAtualizacao: new Date(),
+      },
+      new UniqueEntityId(),
+    );
 
     const clienteData = {
+      tenantId: tenant.id.toString(),
       nome: 'John Doe',
       email: clienteEmail,
       genero: 'M',
