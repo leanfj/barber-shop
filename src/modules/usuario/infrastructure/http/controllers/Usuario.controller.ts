@@ -1,9 +1,9 @@
 // import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
-import { type UsuarioService } from '@/modules/usuario/application/Usuario.service';
+import { type UsuarioService } from '../../../../../modules/usuario/application/Usuario.service';
 import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { type Request, type Response, Router } from 'express';
 import { type CadastraUsuarioInput } from '../../../../../modules/usuario/application/useCase/CadastraUsuario';
-import { CadastraUsuarioErrors } from '@/modules/usuario/application/useCase/CadastraUsuarioErrors';
+import { CadastraUsuarioErrors } from '../../../../../modules/usuario/application/useCase/CadastraUsuarioErrors';
 
 export class UsuarioController extends IBaseController {
   public path = '/usuarios';
@@ -78,9 +78,7 @@ export class UsuarioController extends IBaseController {
 
   async create(request: Request, response: Response): Promise<Response> {
     try {
-      const body: CadastraUsuarioInput = JSON.parse(
-        decodeURIComponent(request.body as string),
-      );
+      const body: CadastraUsuarioInput = request.body;
       const result = await this.usuarioService.create(body);
 
       if (result.isLeft()) {

@@ -78,9 +78,7 @@ export class ClienteController extends IBaseController {
 
   async create(request: Request, response: Response): Promise<Response> {
     try {
-      const body: CadastrarClienteInput = JSON.parse(
-        decodeURIComponent(request.body as string),
-      );
+      const body: CadastrarClienteInput = request.body;
       const result = await this.clienteService.create(body);
 
       if (result.isLeft()) {
