@@ -5,6 +5,7 @@ import { type AppError } from '../../../../core/application/AppError';
 
 type Response = Either<AppError.UnexpectedError, Result<Cliente>>;
 
-export default interface IClienteRepository extends IRepository<Cliente> {
+export default interface IClienteRepository
+  extends IRepository<Cliente, Response> {
   findByNome: (input: string) => Promise<Response>;
 }

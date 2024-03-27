@@ -82,7 +82,7 @@ export default class Cliente extends Entity<ClienteProps> {
   }
 
   public calculaIdade(): number {
-    if (this.dataNascimento === null || this.dataNascimento === undefined) {
+    if (!this.dataNascimento) {
       return 0;
     }
 

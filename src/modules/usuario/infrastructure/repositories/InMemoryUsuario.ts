@@ -8,6 +8,7 @@ import type Usuario from '../../domain/entities/Usuario';
 import type IUsuarioRepository from '../../domain/repositories/IUsuarioRepository';
 import { type AppError } from '../../../../core/application/AppError';
 import { UsuarioRepositoryErrors } from './usuarioRepositoryErrors';
+import UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 export default class InMemoryUsuario implements IUsuarioRepository {
@@ -18,7 +19,7 @@ export default class InMemoryUsuario implements IUsuarioRepository {
       (usuario) => usuario.email === email,
     );
 
-    if (usuarioData == null) {
+    if (!usuarioData) {
       return left(new UsuarioRepositoryErrors.UsuarioNotExists());
     }
 
@@ -37,7 +38,15 @@ export default class InMemoryUsuario implements IUsuarioRepository {
     throw new Error('Method not implemented.');
   }
 
-  async getById(id: string): Promise<any> {
-    throw new Error('Method not implemented.');
+  async getById(id: string): Promise<Response> {
+    const usuarioData = this.usuarios.find((usuario) =>
+      usuario.id.equals(new UniqueEntityId(id)),
+    );
+
+    if (!usuarioData) {
+      return left(new UsuarioRepositoryErrors.UsuarioNotExists());
+    }
+
+    return right(Result.ok<Usuario>(usuarioData));
   }
 }

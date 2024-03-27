@@ -16,7 +16,7 @@ export default class CPF extends ValueObject<CPFProps> {
 
   public static setValue(value: string): CPF {
     const valueSchema = z.string().refine((cpf: string) => {
-      if (cpf === null || cpf === undefined) {
+      if (!cpf) {
         return false;
       }
 

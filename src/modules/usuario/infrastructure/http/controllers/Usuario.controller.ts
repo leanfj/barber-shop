@@ -5,6 +5,7 @@ import { type Request, type Response, Router } from 'express';
 import { type CadastraUsuarioInput } from '../../../../../modules/usuario/application/useCase/CadastraUsuario';
 import { CadastraUsuarioErrors } from '../../../../../modules/usuario/application/useCase/CadastraUsuarioErrors';
 import { type GetUsuarioByEmailInput } from '../../../../../modules/usuario/application/useCase/GetUsuarioByEmail';
+import { type GetUsuarioByIdInput } from '../../../../../modules/usuario/application/useCase/GetUsuarioById';
 
 export class UsuarioController extends IBaseController {
   public path = '/usuarios';
@@ -40,6 +41,15 @@ export class UsuarioController extends IBaseController {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.getByEmail(request, response);
+      },
+    );
+    this.router.get(
+      `${this.path}/id/:id`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      // ensureAuthenticated(),
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.getById(request, response);
       },
     );
 
@@ -133,7 +143,29 @@ export class UsuarioController extends IBaseController {
         }
         return this.fail(response, result.value.getErrorValue().message);
       }
-      return this.created(response);
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async getById(request: Request, response: Response): Promise<Response> {
+    try {
+      const body: GetUsuarioByIdInput = {
+        id: request.params.id,
+      };
+      const result = await this.usuarioService.getById(body);
+
+      if (result.isLeft()) {
+        if (
+          result.value instanceof CadastraUsuarioErrors.UsuarioAlreadyExists
+        ) {
+          return this.conflict(response, result.value.getErrorValue().message);
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+      return this.ok(response, result.value.getValue());
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return this.fail(response, err);

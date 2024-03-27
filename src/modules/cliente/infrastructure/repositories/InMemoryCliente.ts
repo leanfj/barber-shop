@@ -16,7 +16,7 @@ export default class InMemoryClienteRepository implements IClienteRepository {
   async findByNome(nome: string): Promise<Response> {
     const clienteData = this.clientes.find((cliente) => cliente.nome === nome);
 
-    if (clienteData == null) {
+    if (!clienteData) {
       return left(new ClienteRepositoryErrors.ClienteNotExists());
     }
 
@@ -35,7 +35,7 @@ export default class InMemoryClienteRepository implements IClienteRepository {
     throw new Error('Method not implemented.');
   }
 
-  async getById(id: string): Promise<Cliente> {
+  async getById(id: string): Promise<Response> {
     throw new Error('Method not implemented.');
   }
 }

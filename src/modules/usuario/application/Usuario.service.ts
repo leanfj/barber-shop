@@ -13,6 +13,10 @@ import {
   GetUsuarioByEmail,
   type GetUsuarioByEmailInput,
 } from './useCase/GetUsuarioByEmail';
+import {
+  GetUsuarioById,
+  type GetUsuarioByIdInput,
+} from './useCase/GetUsuarioById';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 
@@ -20,7 +24,7 @@ export class UsuarioService {
   private readonly cadastraUsuario: CadastraUsuario;
   private readonly getUsuarioByEmail: GetUsuarioByEmail;
   // private getActivedUsuarioByEmailUseCase: GetactivedUsuarioByEmailUseCase;
-  // private getUsuarioByIdUseCase: GetUsuarioByIdUseCase;
+  private readonly getUsuarioById: GetUsuarioById;
 
   constructor(readonly usuarioRepository: IUsuarioRepository) {
     this.cadastraUsuario = new CadastraUsuario(usuarioRepository);
@@ -28,7 +32,7 @@ export class UsuarioService {
     // this.getActivedUsuarioByEmailUseCase = new GetactivedUsuarioByEmailUseCase(
     //   usuarioRepository,
     // );
-    // this.getUsuarioByIdUseCase = new GetUsuarioByIdUseCase(usuarioRepository);
+    this.getUsuarioById = new GetUsuarioById(usuarioRepository);
   }
 
   public async create(input: CadastraUsuarioInput): Promise<Response> {
@@ -74,20 +78,20 @@ export class UsuarioService {
   //   }
   // }
 
-  // public async getById(id: string): Promise<Response> {
-  //   try {
-  //     const result = await this.getUsuarioByIdUseCase.execute(id);
+  public async getById(id: GetUsuarioByIdInput): Promise<Response> {
+    try {
+      const result = await this.getUsuarioById.execute(id);
 
-  //     if (result.isLeft()) {
-  //       return left(result.value);
-  //     } else {
-  //       const usuario = result.value.getValue();
-  //       return right(Result.ok<Usuario>(usuario));
-  //     }
-  //   } catch (error) {
-  //     return left(new AppError.UnexpectedError(error));
-  //   }
-  // }
+      if (result.isLeft()) {
+        return left(result.value);
+      } else {
+        const usuario = result.value.getValue();
+        return right(Result.ok<Usuario>(usuario));
+      }
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
 
   // public async getAll(): Promise<Response> {
   //   try {
