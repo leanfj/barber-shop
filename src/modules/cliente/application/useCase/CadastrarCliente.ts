@@ -45,7 +45,7 @@ export default class CadastrarCliente
         input.nome,
       );
 
-      if (existingCliente != null) {
+      if (!existingCliente.isLeft()) {
         return left(
           new CadastartClienteErrors.ClienteAlreadyExists(input.nome),
         );

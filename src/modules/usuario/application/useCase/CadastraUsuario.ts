@@ -9,7 +9,7 @@ import {
 } from '../../../../core/logic/Result';
 import { AppError } from '../../../../core/application/AppError';
 import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
-import type IUsuarioRepository from '../../domain/repositories/IUsuario.repository';
+import type IUsuarioRepository from '../../domain/repositories/IUsuarioRepository';
 
 export interface CadastraUsuarioInput {
   tenantId: string;
@@ -35,7 +35,7 @@ export class CadastraUsuario
         input.email,
       );
 
-      if (usuarioExists != null) {
+      if (!usuarioExists.isLeft()) {
         return left(
           new CadastraUsuarioErrors.UsuarioAlreadyExists(input.email),
         );

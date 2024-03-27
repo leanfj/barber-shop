@@ -5,33 +5,35 @@ import {
   CadastraUsuario,
 } from './useCase/CadastraUsuario';
 // import { GetactivedUsuarioByEmailUseCase } from './useCase/GetActivedUsuarioByEmail.useCase';
-import { left, Result, right, type Either } from '../../../core/logic/Result';
+import { type Either, left, Result, right } from '../../../core/logic/Result';
 import { AppError } from '../../../core/application/AppError';
 import type Usuario from '../domain/entities/Usuario';
-import type IUsuarioRepository from '../domain/repositories/IUsuario.repository';
+import type IUsuarioRepository from '../domain/repositories/IUsuarioRepository';
+import {
+  GetUsuarioByEmail,
+  type GetUsuarioByEmailInput,
+} from './useCase/GetUsuarioByEmail';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 
 export class UsuarioService {
   private readonly cadastraUsuario: CadastraUsuario;
-  // private getUsuarioByEmailUseCase: GetUsuarioByEmailUseCase;
+  private readonly getUsuarioByEmail: GetUsuarioByEmail;
   // private getActivedUsuarioByEmailUseCase: GetactivedUsuarioByEmailUseCase;
   // private getUsuarioByIdUseCase: GetUsuarioByIdUseCase;
 
   constructor(readonly usuarioRepository: IUsuarioRepository) {
     this.cadastraUsuario = new CadastraUsuario(usuarioRepository);
-    // this.getUsuarioByEmailUseCase = new GetUsuarioByEmailUseCase(
-    //   usuarioRepository,
-    // );
+    this.getUsuarioByEmail = new GetUsuarioByEmail(usuarioRepository);
     // this.getActivedUsuarioByEmailUseCase = new GetactivedUsuarioByEmailUseCase(
     //   usuarioRepository,
     // );
     // this.getUsuarioByIdUseCase = new GetUsuarioByIdUseCase(usuarioRepository);
   }
 
-  public async create(usuario: CadastraUsuarioInput): Promise<Response> {
+  public async create(input: CadastraUsuarioInput): Promise<Response> {
     try {
-      const result = await this.cadastraUsuario.execute(usuario);
+      const result = await this.cadastraUsuario.execute(input);
       if (result.isLeft()) {
         return left(result.value);
       } else {
@@ -42,20 +44,20 @@ export class UsuarioService {
     }
   }
 
-  // public async getByEmail(email: string): Promise<Response> {
-  //   try {
-  //     const result = await this.getUsuarioByEmailUseCase.execute(email);
+  public async getByEmail(input: GetUsuarioByEmailInput): Promise<Response> {
+    try {
+      const result = await this.getUsuarioByEmail.execute(input);
 
-  //     if (result.isLeft()) {
-  //       return left(result.value);
-  //     } else {
-  //       const usuario = result.value.getValue();
-  //       return right(Result.ok<Usuario>(usuario));
-  //     }
-  //   } catch (error) {
-  //     return left(new AppError.UnexpectedError(error));
-  //   }
-  // }
+      if (result.isLeft()) {
+        return left(result.value);
+      } else {
+        const usuario = result.value.getValue();
+        return right(Result.ok<Usuario>(usuario));
+      }
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
 
   // public async getActivedByEmail(email: string): Promise<Response> {
   //   try {

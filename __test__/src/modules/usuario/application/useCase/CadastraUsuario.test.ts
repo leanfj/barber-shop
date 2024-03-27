@@ -4,7 +4,7 @@ import {
   CadastraUsuario,
 } from '../../../../../../src/modules/usuario/application/useCase/CadastraUsuario';
 import type Usuario from '../../../../../../src/modules/usuario/domain/entities/Usuario';
-import type IUsuarioRepository from '../../../../../../src/modules/usuario/domain/repositories/IUsuario.repository';
+import type IUsuarioRepository from '../../../../../../src/modules/usuario/domain/repositories/IUsuarioRepository';
 import InMemoryUsuario from '../../../../../../src/modules/usuario/infrastructure/repositories/InMemoryUsuario';
 
 describe('CadastraUsuario UseCase', () => {

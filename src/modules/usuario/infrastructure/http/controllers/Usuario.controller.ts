@@ -4,6 +4,7 @@ import { IBaseController } from '../../../../../core/infrastructure/http/IBaseCo
 import { type Request, type Response, Router } from 'express';
 import { type CadastraUsuarioInput } from '../../../../../modules/usuario/application/useCase/CadastraUsuario';
 import { CadastraUsuarioErrors } from '../../../../../modules/usuario/application/useCase/CadastraUsuarioErrors';
+import { type GetUsuarioByEmailInput } from '../../../../../modules/usuario/application/useCase/GetUsuarioByEmail';
 
 export class UsuarioController extends IBaseController {
   public path = '/usuarios';
@@ -32,6 +33,15 @@ export class UsuarioController extends IBaseController {
     //     this.getAll(request, response, next);
     //   },
     // );
+    this.router.get(
+      `${this.path}/email`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      // ensureAuthenticated(),
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.getByEmail(request, response);
+      },
+    );
 
     // this.router.patch(
     //   `${this.path}/:id`,
@@ -80,6 +90,34 @@ export class UsuarioController extends IBaseController {
     try {
       const body: CadastraUsuarioInput = request.body;
       const result = await this.usuarioService.create(body);
+
+      if (result.isLeft()) {
+        if (
+          result.value instanceof CadastraUsuarioErrors.UsuarioAlreadyExists
+        ) {
+          return this.conflict(response, result.value.getErrorValue().message);
+        }
+        if (result.value instanceof CadastraUsuarioErrors.InvalidData) {
+          return this.invalidInput(
+            response,
+            result.value.getErrorValue().message,
+          );
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+      return this.created(response);
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async getByEmail(request: Request, response: Response): Promise<Response> {
+    try {
+      const body: GetUsuarioByEmailInput = {
+        email: request.query.email as string,
+      };
+      const result = await this.usuarioService.getByEmail(body);
 
       if (result.isLeft()) {
         if (

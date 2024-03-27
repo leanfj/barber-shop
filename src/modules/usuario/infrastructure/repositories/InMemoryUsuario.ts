@@ -1,11 +1,28 @@
+import {
+  left,
+  Result,
+  right,
+  type Either,
+} from '../../../../core/logic/Result';
 import type Usuario from '../../domain/entities/Usuario';
-import type IUsuarioRepository from '../../domain/repositories/IUsuario.repository';
+import type IUsuarioRepository from '../../domain/repositories/IUsuarioRepository';
+import { type AppError } from '../../../../core/application/AppError';
+import { UsuarioRepositoryErrors } from './usuarioRepositoryErrors';
 
+type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 export default class InMemoryUsuario implements IUsuarioRepository {
   private readonly usuarios: Usuario[] = [];
 
-  async findByEmail(email: string): Promise<any> {
-    return this.usuarios.find((usuario) => usuario.email === email);
+  async findByEmail(email: string): Promise<Response> {
+    const usuarioData = this.usuarios.find(
+      (usuario) => usuario.email === email,
+    );
+
+    if (usuarioData == null) {
+      return left(new UsuarioRepositoryErrors.UsuarioNotExists());
+    }
+
+    return right(Result.ok<Usuario>(usuarioData));
   }
 
   async save(usuario: Usuario): Promise<any> {
