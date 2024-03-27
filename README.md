@@ -1,10 +1,12 @@
 # BarberShop
 
-
+- Projeto Github: [BarberShop](https://github.com/users/leanfj/projects/2)
+- Rpositório Github: [BarberShop](https://github.com/leanfj/barber-shop)
 
 ## Iniciando o projeto
 
-- Realizar o clone do projeto em []()
+- Realizar o clone do projeto em [Github-barber-shop](https://github.com/leanfj/barber-shop)
+  `git clone https://github.com/leanfj/barber-shop.git`
 
 ### Pré-requisitos
 
