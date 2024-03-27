@@ -17,21 +17,23 @@ import {
   GetUsuarioById,
   type GetUsuarioByIdInput,
 } from './useCase/GetUsuarioById';
+import {
+  GetActiveUserByEmail,
+  type GetactiveUserByEmailInput,
+} from './useCase/GetActiveUserByEmail';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 
 export class UsuarioService {
   private readonly cadastraUsuario: CadastraUsuario;
   private readonly getUsuarioByEmail: GetUsuarioByEmail;
-  // private getActivedUsuarioByEmailUseCase: GetactivedUsuarioByEmailUseCase;
+  private readonly getActiveUserByEmail: GetActiveUserByEmail;
   private readonly getUsuarioById: GetUsuarioById;
 
   constructor(readonly usuarioRepository: IUsuarioRepository) {
     this.cadastraUsuario = new CadastraUsuario(usuarioRepository);
     this.getUsuarioByEmail = new GetUsuarioByEmail(usuarioRepository);
-    // this.getActivedUsuarioByEmailUseCase = new GetactivedUsuarioByEmailUseCase(
-    //   usuarioRepository,
-    // );
+    this.getActiveUserByEmail = new GetActiveUserByEmail(usuarioRepository);
     this.getUsuarioById = new GetUsuarioById(usuarioRepository);
   }
 
@@ -51,6 +53,23 @@ export class UsuarioService {
   public async getByEmail(input: GetUsuarioByEmailInput): Promise<Response> {
     try {
       const result = await this.getUsuarioByEmail.execute(input);
+
+      if (result.isLeft()) {
+        return left(result.value);
+      } else {
+        const usuario = result.value.getValue();
+        return right(Result.ok<Usuario>(usuario));
+      }
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async getActiveByEmail(
+    input: GetactiveUserByEmailInput,
+  ): Promise<Response> {
+    try {
+      const result = await this.getActiveUserByEmail.execute(input);
 
       if (result.isLeft()) {
         return left(result.value);

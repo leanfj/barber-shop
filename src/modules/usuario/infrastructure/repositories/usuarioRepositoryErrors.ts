@@ -8,6 +8,12 @@ export namespace UsuarioRepositoryErrors {
     }
   }
 
+  export class UsuarioNotActived extends Result<RepositoryError> {
+    constructor() {
+      super(false, new RepositoryError('The Usuario is not actived'));
+    }
+  }
+
   export class UsuarioListEmpty extends Result<RepositoryError> {
     constructor() {
       super(false, new RepositoryError('The list of Usuarios is empty'));

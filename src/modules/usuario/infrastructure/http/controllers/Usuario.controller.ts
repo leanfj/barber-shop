@@ -6,6 +6,9 @@ import { type CadastraUsuarioInput } from '../../../../../modules/usuario/applic
 import { CadastraUsuarioErrors } from '../../../../../modules/usuario/application/useCase/CadastraUsuarioErrors';
 import { type GetUsuarioByEmailInput } from '../../../../../modules/usuario/application/useCase/GetUsuarioByEmail';
 import { type GetUsuarioByIdInput } from '../../../../../modules/usuario/application/useCase/GetUsuarioById';
+import { type GetactiveUserByEmailInput } from '../../../../../modules/usuario/application/useCase/GetActiveUserByEmail';
+import { GetActiveUserByEmailErrors } from '../../../../../modules/usuario/application/useCase/GetActiveUserByEmailErrors';
+import { GetUsuarioByEmailErrors } from '../../../../../modules/usuario/application/useCase/GetUsuarioByEmailErrors';
 
 export class UsuarioController extends IBaseController {
   public path = '/usuarios';
@@ -41,6 +44,15 @@ export class UsuarioController extends IBaseController {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.getByEmail(request, response);
+      },
+    );
+    this.router.get(
+      `${this.path}/email/ativo`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      // ensureAuthenticated(),
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.getActiveUserByEmail(request, response);
       },
     );
     this.router.get(
@@ -130,12 +142,41 @@ export class UsuarioController extends IBaseController {
       const result = await this.usuarioService.getByEmail(body);
 
       if (result.isLeft()) {
+        if (result.value instanceof GetUsuarioByEmailErrors.UsuarioNotExists) {
+          return this.conflict(response, result.value.getErrorValue().message);
+        }
+        if (result.value instanceof GetUsuarioByEmailErrors.InvalidData) {
+          return this.invalidInput(
+            response,
+            result.value.getErrorValue().message,
+          );
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async getActiveUserByEmail(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    try {
+      const body: GetactiveUserByEmailInput = {
+        email: request.query.email as string,
+      };
+      const result = await this.usuarioService.getActiveByEmail(body);
+
+      if (result.isLeft()) {
         if (
-          result.value instanceof CadastraUsuarioErrors.UsuarioAlreadyExists
+          result.value instanceof GetActiveUserByEmailErrors.UsuarioNotExist
         ) {
           return this.conflict(response, result.value.getErrorValue().message);
         }
-        if (result.value instanceof CadastraUsuarioErrors.InvalidData) {
+        if (result.value instanceof GetActiveUserByEmailErrors.InvalidData) {
           return this.invalidInput(
             response,
             result.value.getErrorValue().message,

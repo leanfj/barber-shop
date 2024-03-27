@@ -49,4 +49,16 @@ export default class InMemoryUsuario implements IUsuarioRepository {
 
     return right(Result.ok<Usuario>(usuarioData));
   }
+
+  async findActivedByEmail(email: string): Promise<Response> {
+    const usuarioData = this.usuarios.find(
+      (usuario) => usuario.email === email && usuario.isActive,
+    );
+
+    if (!usuarioData) {
+      return left(new UsuarioRepositoryErrors.UsuarioNotExists());
+    }
+
+    return right(Result.ok<Usuario>(usuarioData));
+  }
 }
