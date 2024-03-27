@@ -15,9 +15,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
-    "paths": {
-      "@/*": ["*"]
-    }
+    "paths": {}
   },
   "include": [
     "./src/**/*.ts",
