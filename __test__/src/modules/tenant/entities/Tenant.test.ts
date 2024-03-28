@@ -1,3 +1,4 @@
+import Slug from '../../../../../src/core/domain/valueObjects/Slug';
 import UniqueEntityId from '../../../../../src/core/domain/entities/UniqueEntityId';
 import Tenant from '../../../../../src/modules/tenant/domain/entities/Tenant';
 
@@ -8,10 +9,11 @@ describe('Tenant', () => {
       isAtivo: true,
       dataCadastro: new Date(),
       dataAtualizacao: new Date(),
+      slug: Slug.setValue('Example Tenant'),
     };
 
     const tenantId = new UniqueEntityId();
-    const tenant = new Tenant(tenantData, tenantId);
+    const tenant = Tenant.create(tenantData, tenantId);
 
     expect(tenant).toBeInstanceOf(Tenant);
     expect(tenant.id).toBe(tenantId);
@@ -19,7 +21,7 @@ describe('Tenant', () => {
     expect(tenant.isAtivo).toBe(true);
     expect(tenant.dataCadastro).toEqual(tenantData.dataCadastro);
     expect(tenant.dataAtualizacao).toEqual(tenantData.dataAtualizacao);
-    expect(tenant.slug).toBe('example_tenant');
+    expect(tenant.slug).toBe('example-tenant');
   });
 
   it('should activate the tenant', () => {
