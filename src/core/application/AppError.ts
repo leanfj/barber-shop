@@ -1,7 +1,6 @@
 import { Result } from '../../core/logic/Result';
 import { type UseCaseError } from './useCase/UseCaseError';
 
-// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AppError {
   export class UnexpectedError extends Result<UseCaseError> {
     public constructor(err: any) {

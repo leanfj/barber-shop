@@ -1,4 +1,4 @@
-import { HttpException } from '../../../../core/infrastructure/http/exceptions/http.exceptions';
+import { HttpException } from '../../../../../core/infrastructure/http/exceptions/http.exceptions';
 
 export class WrongAuthenticationTokenException extends HttpException {
   constructor() {
