@@ -8,6 +8,8 @@ import App from './app';
 import colors from 'colors/safe';
 import { TenantService } from '../../../modules/tenant/application/tenant.service';
 import InMemoryTenantRepository from '../../../modules/tenant/infrastructure/repositories/InMemoryTenant';
+import { LoginService } from '../../../modules/authentication/application/login.service';
+import { LoginController } from '../../../modules/authentication/http/controllers/Login.Controller';
 
 void (async () => {
   const tenantService = new TenantService(new InMemoryTenantRepository());
@@ -16,10 +18,12 @@ void (async () => {
     new InMemoryUsuarioRepository(),
     tenantService,
   );
+  const loginService = new LoginService(usuarioService);
 
   const app = new App([
     new ClienteController(clienteService),
     new UsuarioController(usuarioService),
+    new LoginController(loginService, usuarioService),
   ]);
 
   const server = app.listen();

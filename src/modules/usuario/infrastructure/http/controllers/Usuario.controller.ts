@@ -9,6 +9,7 @@ import { type GetUsuarioByIdInput } from '../../../../../modules/usuario/applica
 import { type GetactiveUserByEmailInput } from '../../../../../modules/usuario/application/useCase/GetActiveUserByEmail';
 import { GetActiveUserByEmailErrors } from '../../../../../modules/usuario/application/useCase/GetActiveUserByEmailErrors';
 import { GetUsuarioByEmailErrors } from '../../../../../modules/usuario/application/useCase/GetUsuarioByEmailErrors';
+import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 
 export class UsuarioController extends IBaseController {
   public path = '/usuarios';
@@ -22,8 +23,6 @@ export class UsuarioController extends IBaseController {
   private initializeRoutes(): void {
     this.router.post(
       `${this.path}`,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      // ensureAuthenticated(),
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.create(request, response);
@@ -40,7 +39,7 @@ export class UsuarioController extends IBaseController {
     this.router.get(
       `${this.path}/email`,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      // ensureAuthenticated(),
+      ensureAuthenticated(),
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.getByEmail(request, response);
@@ -49,7 +48,7 @@ export class UsuarioController extends IBaseController {
     this.router.get(
       `${this.path}/email/ativo`,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      // ensureAuthenticated(),
+      ensureAuthenticated(),
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.getActiveUserByEmail(request, response);
@@ -58,7 +57,7 @@ export class UsuarioController extends IBaseController {
     this.router.get(
       `${this.path}/id/:id`,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      // ensureAuthenticated(),
+      ensureAuthenticated(),
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.getById(request, response);

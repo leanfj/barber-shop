@@ -33,7 +33,7 @@ export default class Usuario extends Entity<UsuarioProps> {
     return this.props.email;
   }
 
-  get password(): string | undefined {
+  get password(): string {
     return this.props.password;
   }
 

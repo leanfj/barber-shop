@@ -2,6 +2,6 @@ import { HttpException } from '../../../../core/infrastructure/http/exceptions/h
 
 export class WrongAuthenticationTokenException extends HttpException {
   constructor() {
-    super(401, 'Wrong authentication token');
+    super(401, 'Token de autenticação inválido.');
   }
 }

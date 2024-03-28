@@ -1,38 +1,31 @@
-// import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
-import { type ClienteService } from '../../../../../modules/cliente/application/Cliente.service';
-import { CadastartClienteErrors } from '../../../../../modules/cliente/application/useCase/CadastrarCliente.errors';
-import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
+import { IBaseController } from '../../../../core/infrastructure/http/IBaseController';
 import { type Request, type Response, Router } from 'express';
-import { type CadastrarClienteInput } from 'modules/cliente/application/useCase/CadastrarCliente';
-import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 
-export class ClienteController extends IBaseController {
-  public path = '/clientes';
+import { type LoginInput } from '../../../../modules/authentication/application/useCase/login.useCase';
+import { type LoginService } from '../../../../modules/authentication/application/login.service';
+import { type UsuarioService } from '../../../../modules/usuario/application/Usuario.service';
+import { LoginErrors } from '../../../../modules/authentication/application/useCase/loginErrors';
+
+export class LoginController extends IBaseController {
+  public path = '/authentication';
   public router = Router();
 
-  constructor(private readonly clienteService: ClienteService) {
+  constructor(
+    private readonly loginService: LoginService,
+    private readonly usuarioService: UsuarioService,
+  ) {
     super();
     this.initializeRoutes();
   }
 
   private initializeRoutes(): void {
     this.router.post(
-      `${this.path}`,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      ensureAuthenticated(),
+      `${this.path}/login`,
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
-        return await this.create(request, response);
+        return await this.login(request, response);
       },
     );
-    // this.router.get(
-    //   `${this.path}`,
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    // ensureAuthenticated(),
-    //   (request: Request, response: Response, next: NextFunction) => {
-    //     this.getAll(request, response, next);
-    //   },
-    // );
 
     // this.router.patch(
     //   `${this.path}/:id`,
@@ -77,26 +70,22 @@ export class ClienteController extends IBaseController {
   //     }
   //   }
 
-  async create(request: Request, response: Response): Promise<Response> {
+  async login(request: Request, response: Response): Promise<Response> {
     try {
-      const body: CadastrarClienteInput = request.body;
-      const result = await this.clienteService.create(body);
+      const body: LoginInput = request.body;
+
+      const result = await this.loginService.login(body);
 
       if (result.isLeft()) {
-        if (
-          result.value instanceof CadastartClienteErrors.ClienteAlreadyExists
-        ) {
-          return this.conflict(response, result.value.getErrorValue().message);
-        }
-        if (result.value instanceof CadastartClienteErrors.InvalidData) {
-          return this.invalidInput(
+        if (result.value instanceof LoginErrors.PasswordOrEmailIncorrect) {
+          return this.unauthorized(
             response,
             result.value.getErrorValue().message,
           );
         }
         return this.fail(response, result.value.getErrorValue().message);
       }
-      return this.created(response);
+      return this.ok(response, result.value.getValue());
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return this.fail(response, err);

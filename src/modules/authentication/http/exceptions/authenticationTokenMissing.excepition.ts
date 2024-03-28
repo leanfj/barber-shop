@@ -2,6 +2,6 @@ import { HttpException } from '../../../../core/infrastructure/http/exceptions/h
 
 export class AuthenticationTokenMissingException extends HttpException {
   constructor() {
-    super(401, 'Authentication token missing');
+    super(401, 'Token de autenticação não informado.');
   }
 }
