@@ -1,10 +1,11 @@
+import type Slug from '../../../../core/domain/valueObjects/Slug';
 import Entity from '../../../../core/domain/entities/Entity';
 import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
 
 interface TenantProps {
   id?: string;
   nome: string;
-  slug?: string;
+  slug?: Slug;
   isAtivo: boolean;
   dataCadastro?: Date;
   dataAtualizacao?: Date;
@@ -13,7 +14,6 @@ interface TenantProps {
 export default class Tenant extends Entity<TenantProps> {
   constructor(props: TenantProps, id?: UniqueEntityId) {
     super(props, id);
-    this.setSlug();
   }
 
   get id(): UniqueEntityId {
@@ -25,7 +25,7 @@ export default class Tenant extends Entity<TenantProps> {
   }
 
   get slug(): string | undefined {
-    return this.props.slug;
+    return this.props.slug?.getValue();
   }
 
   get isAtivo(): boolean {
@@ -38,10 +38,6 @@ export default class Tenant extends Entity<TenantProps> {
 
   get dataAtualizacao(): Date | undefined {
     return this.props.dataAtualizacao;
-  }
-
-  private setSlug(): void {
-    this.props.slug = this.props.nome.toLowerCase().replace(/ /g, '_');
   }
 
   public ativar(): void {

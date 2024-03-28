@@ -6,10 +6,16 @@ import { ClienteController } from '../../../modules/cliente/infrastructure/http/
 import { UsuarioController } from '../../../modules/usuario/infrastructure/http/controllers/Usuario.controller';
 import App from './app';
 import colors from 'colors/safe';
+import { TenantService } from '../../../modules/tenant/application/tenant.service';
+import InMemoryTenantRepository from '../../../modules/tenant/infrastructure/repositories/InMemoryTenant';
 
 void (async () => {
+  const tenantService = new TenantService(new InMemoryTenantRepository());
   const clienteService = new ClienteService(new InMemoryClienteRepository());
-  const usuarioService = new UsuarioService(new InMemoryUsuarioRepository());
+  const usuarioService = new UsuarioService(
+    new InMemoryUsuarioRepository(),
+    tenantService,
+  );
 
   const app = new App([
     new ClienteController(clienteService),
