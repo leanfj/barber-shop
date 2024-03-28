@@ -1,10 +1,10 @@
-import { IBaseController } from '../../../../core/infrastructure/http/IBaseController';
+import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { type Request, type Response, Router } from 'express';
 
-import { type LoginInput } from '../../../../modules/authentication/application/useCase/login.useCase';
-import { type LoginService } from '../../../../modules/authentication/application/login.service';
-import { type UsuarioService } from '../../../../modules/usuario/application/Usuario.service';
-import { LoginErrors } from '../../../../modules/authentication/application/useCase/loginErrors';
+import { type LoginInput } from '../../../../../modules/authentication/application/useCase/login.useCase';
+import { type LoginService } from '../../../../../modules/authentication/application/login.service';
+import { type UsuarioService } from '../../../../../modules/usuario/application/Usuario.service';
+import { LoginErrors } from '../../../../../modules/authentication/application/useCase/loginErrors';
 
 export class LoginController extends IBaseController {
   public path = '/authentication';

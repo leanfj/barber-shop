@@ -9,7 +9,7 @@ import colors from 'colors/safe';
 import { TenantService } from '../../../modules/tenant/application/tenant.service';
 import InMemoryTenantRepository from '../../../modules/tenant/infrastructure/repositories/InMemoryTenant';
 import { LoginService } from '../../../modules/authentication/application/login.service';
-import { LoginController } from '../../../modules/authentication/http/controllers/Login.Controller';
+import { LoginController } from '../../../modules/authentication/infrastructure/http/controllers/Login.Controller';
 
 void (async () => {
   const tenantService = new TenantService(new InMemoryTenantRepository());

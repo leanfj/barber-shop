@@ -2,9 +2,9 @@ import { type Response, type NextFunction } from 'express';
 import { type IDataStoredInToken } from '../IDataStoreInToken';
 import { type IRequestWithUsuarioId } from '../IRequestWithUsuarioId';
 import { TokenExpiredError, verify } from 'jsonwebtoken';
-import { AuthenticationTokenMissingException } from '../../../../modules/authentication/http/exceptions/authenticationTokenMissing.excepition';
-import { WrongAuthenticationTokenException } from '../../../../modules/authentication/http/exceptions/wrongAuthenticationToken.exception';
-import { TimeoutAuthenticationTokenException } from '../../../../modules/authentication/http/exceptions/timeoutAuthenticationToken.exception';
+import { AuthenticationTokenMissingException } from '../../../../modules/authentication/infrastructure/http/exceptions/authenticationTokenMissing.excepition';
+import { WrongAuthenticationTokenException } from '../../../../modules/authentication/infrastructure/http/exceptions/wrongAuthenticationToken.exception';
+import { TimeoutAuthenticationTokenException } from '../../../../modules/authentication/infrastructure/http/exceptions/timeoutAuthenticationToken.exception';
 
 export function ensureAuthenticated(): any {
   return (
