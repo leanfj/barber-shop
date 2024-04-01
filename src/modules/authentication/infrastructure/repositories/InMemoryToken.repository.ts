@@ -5,7 +5,7 @@ import {
   left,
   right,
 } from '../../../../core/logic/Result';
-import { Token } from '../../domain/entities/Token';
+import { type Token } from '../../domain/entities/Token';
 import { TokenRepositoryErrors } from './tokenRepositoryErrors';
 import type ITokenRepository from '../../domain/repositories/ITokenRepository';
 
@@ -42,19 +42,8 @@ export class InMemorytokenRepository implements ITokenRepository {
 
   async save(token: Token): Promise<Response> {
     try {
-      const newToken = Token.create(
-        {
-          token: token.token,
-          usuarioId: token.usuarioId,
-          tenantId: token.tenantId,
-          dataCadastro: token.dataCadastro || new Date(),
-          dataAtualizacao: token.dataAtualizacao || new Date(),
-        },
-        token.id,
-      );
-
-      this.tokens.push(newToken);
-      return right(Result.ok<Token>(newToken));
+      this.tokens.push(token);
+      return right(Result.ok<Token>(token));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }
@@ -81,6 +70,20 @@ export class InMemorytokenRepository implements ITokenRepository {
         return left(new TokenRepositoryErrors.TokenNotExists());
       }
       return right(Result.ok<Token>(token));
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  async findByToken(token: string): Promise<Response> {
+    try {
+      const tokenData = this.tokens.find(
+        (tokenValue) => tokenValue.token === token,
+      );
+      if (!tokenData) {
+        return left(new TokenRepositoryErrors.TokenNotExists());
+      }
+      return right(Result.ok<Token>(tokenData));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }

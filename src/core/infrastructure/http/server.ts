@@ -9,7 +9,7 @@ import colors from 'colors/safe';
 import { TenantService } from '../../../modules/tenant/application/tenant.service';
 import InMemoryTenantRepository from '../../../modules/tenant/infrastructure/repositories/InMemoryTenant';
 import { AuthenticationService } from '../../../modules/authentication/application/authentication.service';
-import { LoginController } from '../../../modules/authentication/infrastructure/http/controllers/Login.Controller';
+import { AuthenticationController } from '../../../modules/authentication/infrastructure/http/controllers/Authentication.Controller';
 import { EmailService } from '../.././../modules/email/application/Email.service';
 import { GmailEmailGateway } from '../../../modules/email/infrastructure/email/GmailEmailServiceRepository';
 import { InMemorytokenRepository } from '../../../modules/authentication/infrastructure/repositories/InMemoryToken.repository';
@@ -38,7 +38,7 @@ void (async () => {
   const app = new App([
     new ClienteController(clienteService),
     new UsuarioController(usuarioService),
-    new LoginController(authenticationService),
+    new AuthenticationController(authenticationService),
   ]);
 
   const server = app.listen();

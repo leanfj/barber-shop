@@ -1,3 +1,4 @@
+import type DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
 import Entity from '../../../../core/domain/entities/Entity';
 import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
 
@@ -6,6 +7,7 @@ interface TokenProps {
   token: string;
   usuarioId: string;
   tenantId: string;
+  dataExpiracao: DataExpiracao;
   dataCadastro: Date;
   dataAtualizacao: Date;
 }
@@ -29,6 +31,10 @@ export class Token extends Entity<TokenProps> {
 
   get tenantId(): string {
     return this.props.tenantId;
+  }
+
+  get dataExpiracao(): number {
+    return this.props.dataExpiracao.getValue();
   }
 
   get dataCadastro(): Date {

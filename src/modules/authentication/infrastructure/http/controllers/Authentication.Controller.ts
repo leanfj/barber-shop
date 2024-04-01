@@ -1,12 +1,12 @@
-import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { type Request, type Response, Router } from 'express';
-
-import { type LoginInput } from '../../../../../modules/authentication/application/useCase/login.useCase';
-import { type AuthenticationService } from '../../../application/authentication.service';
-import { LoginErrors } from '../../../../../modules/authentication/application/useCase/loginErrors';
+import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
+import { type LoginInput } from '../../../application/useCase/login.useCase';
+import { LoginErrors } from '../../../application/useCase/loginErrors';
+import { type AuthenticationService } from '../../../application/authentication.service';
+import { RequestRefreshTokenErrors } from '../../../../../modules/authentication/application/useCase/requestRefreshTokenErrors';
 
-export class LoginController extends IBaseController {
+export class AuthenticationController extends IBaseController {
   public path = '/authentication';
   public router = Router();
 
@@ -29,6 +29,14 @@ export class LoginController extends IBaseController {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.requestResetPassword(request, response);
+      },
+    );
+
+    this.router.post(
+      `${this.path}/refreshToken`,
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.requestRefreshToken(request, response);
       },
     );
 
@@ -113,7 +121,38 @@ export class LoginController extends IBaseController {
       );
 
       if (result.isLeft()) {
-        if (result.value instanceof LoginErrors.UserNotFound) {
+        if (result.value instanceof LoginErrors.UserNotFoundEmail) {
+          return this.ok(response, result.value.getErrorValue().message);
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async requestRefreshToken(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    try {
+      const body: {
+        refreshToken: string;
+        email: string;
+      } = request.body;
+
+      const result = await this.authenticationService.requestRefreshToken(
+        body.refreshToken,
+        body.email,
+      );
+
+      if (result.isLeft()) {
+        if (
+          result.value instanceof RequestRefreshTokenErrors.TokenInvalid ||
+          result.value instanceof LoginErrors.UserNotFound
+        ) {
           return this.ok(response, result.value.getErrorValue().message);
         }
         return this.fail(response, result.value.getErrorValue().message);
@@ -141,7 +180,7 @@ export class LoginController extends IBaseController {
       );
 
       if (result.isLeft()) {
-        if (result.value instanceof LoginErrors.UserNotFound) {
+        if (result.value instanceof LoginErrors.UserNotFoundEmail) {
           return this.ok(response, result.value.getErrorValue().message);
         }
         return this.fail(response, result.value.getErrorValue().message);

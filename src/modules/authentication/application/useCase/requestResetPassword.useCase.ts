@@ -8,9 +8,10 @@ import {
   right,
 } from '../../../../core/logic/Result';
 import { randomBytes } from 'crypto';
-import { type Token } from '../../domain/entities/Token';
+import { Token } from '../../domain/entities/Token';
 import type ITokenRepository from '../../domain/repositories/ITokenRepository';
 import type Usuario from '../../../../modules/usuario/domain/entities/Usuario';
+import DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
 
 type Response = Either<
   AppError.UnexpectedError,
@@ -42,15 +43,16 @@ export class RequestResetPasswordUseCase
 
       const tokenHash = await bcrypt.hash(resetPasswordToken, salt);
 
-      const token = {
+      const token = Token.create({
         token: tokenHash,
         usuarioId: usuario.id.toString(),
         tenantId: usuario.tenantId,
+        dataExpiracao: DataExpiracao.setValue(),
         dataCadastro: new Date(),
         dataAtualizacao: new Date(),
-      };
+      });
 
-      await this.tokenRepository.save(token as Token);
+      await this.tokenRepository.save(token);
 
       const { CLIENT_URL } = process.env;
 

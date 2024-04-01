@@ -1,4 +1,4 @@
-import { compare } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { type Secret, sign } from 'jsonwebtoken';
 import { LoginErrors } from './loginErrors';
 import { AppError } from '../../../../core/application/AppError';
@@ -11,14 +11,18 @@ import {
 import type Usuario from '../../../../modules/usuario/domain/entities/Usuario';
 import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
 import type ITokenRepository from '../../../../modules/authentication/domain/repositories/ITokenRepository';
-import { type Token } from '../../domain/entities/Token';
+import { Token } from '../../domain/entities/Token';
+import DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
 
 export interface LoginInput {
   email: string;
   password: string;
 }
 
-type Response = Either<AppError.UnexpectedError, Result<{ token: string }>>;
+type Response = Either<
+  AppError.UnexpectedError,
+  Result<{ token: string; refreshToken: Token }>
+>;
 
 export class LoginUseCase
   implements
@@ -33,7 +37,7 @@ export class LoginUseCase
     usuario: Usuario;
   }): Promise<Response> {
     try {
-      const chekPassword = await compare(
+      const chekPassword = await bcrypt.compare(
         input.login.password,
         input.usuario.password,
       );
@@ -45,7 +49,7 @@ export class LoginUseCase
 
       const { JWT_SECRET } = process.env;
 
-      const token = sign(
+      const tokenJWT = sign(
         {
           id: input.usuario.id.toString(),
           nome: input.usuario.nome,
@@ -59,19 +63,25 @@ export class LoginUseCase
         },
       );
 
-      const tokenData = {
-        token,
+      const salt = await bcrypt.genSalt(12);
+
+      const tokenHash = await bcrypt.hash(tokenJWT, salt);
+
+      const refreshToken = Token.create({
+        token: tokenHash,
+        dataExpiracao: DataExpiracao.setValue(),
         usuarioId: input.usuario.id.toString(),
         tenantId: input.usuario.tenantId,
         dataCadastro: new Date(),
         dataAtualizacao: new Date(),
-      };
+      });
 
-      await this.tokenRepository.save(tokenData as Token);
+      await this.tokenRepository.save(refreshToken);
 
       return right(
-        Result.ok<{ token: string }>({
-          token,
+        Result.ok<{ token: string; refreshToken: Token }>({
+          token: tokenJWT,
+          refreshToken,
         }),
       );
     } catch (error) {

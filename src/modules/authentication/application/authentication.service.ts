@@ -8,6 +8,8 @@ import { RequestResetPasswordUseCase } from './useCase/requestResetPassword.useC
 import type ITokenRepository from '../domain/repositories/ITokenRepository';
 import { type EmailService } from '../../email/application/Email.service';
 import { ResetPasswordUseCase } from './useCase/resetPassword.useCase';
+import { type Token } from '../domain/entities/Token';
+import { RequestRefreshTokenUseCase } from './useCase/requestRefreshToken.useCase';
 
 type Response = Either<
   AppError.UnexpectedError,
@@ -28,6 +30,7 @@ export class AuthenticationService {
   private readonly loginUseCase: LoginUseCase;
   private readonly requestResetPasswordUseCase: RequestResetPasswordUseCase;
   private readonly resetPasswordUseCase: ResetPasswordUseCase;
+  private readonly requestRefreshTokenUseCase: RequestRefreshTokenUseCase;
 
   constructor(
     usuarioService: UsuarioService,
@@ -39,6 +42,9 @@ export class AuthenticationService {
     this.loginUseCase = new LoginUseCase(tokenRepository);
     this.resetPasswordUseCase = new ResetPasswordUseCase(tokenRepository);
     this.requestResetPasswordUseCase = new RequestResetPasswordUseCase(
+      tokenRepository,
+    );
+    this.requestRefreshTokenUseCase = new RequestRefreshTokenUseCase(
       tokenRepository,
     );
   }
@@ -65,7 +71,11 @@ export class AuthenticationService {
       if (result.isLeft()) {
         return left(result.value);
       } else {
-        return right(Result.ok<{ token: string }>(result.value.getValue()));
+        return right(
+          Result.ok<{ token: string; refreshToken: Token }>(
+            result.value.getValue(),
+          ),
+        );
       }
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
@@ -77,7 +87,7 @@ export class AuthenticationService {
       const usuario = await this.usuarioService.getByEmail({ email });
 
       if (usuario.isLeft()) {
-        return left(new LoginErrors.UserNotFound());
+        return left(new LoginErrors.UserNotFoundEmail());
       }
 
       const requestResetPasswordOrError =
@@ -128,7 +138,7 @@ export class AuthenticationService {
       const usuario = await this.usuarioService.getById({ id: usuarioId });
 
       if (usuario.isLeft()) {
-        return left(new LoginErrors.UserNotFound());
+        return left(new LoginErrors.UserNotFoundEmail());
       }
 
       const resetOrError = await this.resetPasswordUseCase.execute({
@@ -162,6 +172,41 @@ export class AuthenticationService {
       }
 
       return right(Result.ok<string>(sendEmailOrError.value.getValue()));
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async requestRefreshToken(
+    token: string,
+    email: string,
+  ): Promise<Response> {
+    try {
+      const usuario = await this.usuarioService.getByEmail({ email });
+
+      if (usuario.isLeft()) {
+        return left(new LoginErrors.UserNotFound(email));
+      }
+
+      const requestRefreshPasswordOrError =
+        await this.requestRefreshTokenUseCase.execute({
+          token,
+          usuario: usuario.value.getValue(),
+        });
+
+      if (requestRefreshPasswordOrError.isLeft()) {
+        return left(requestRefreshPasswordOrError.value);
+      }
+
+      const refreshToken = requestRefreshPasswordOrError.value.getValue();
+
+      return right(
+        Result.ok<{
+          token: string;
+        }>({
+          token: refreshToken.token,
+        }),
+      );
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }
