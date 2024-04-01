@@ -8,8 +8,12 @@ import App from './app';
 import colors from 'colors/safe';
 import { TenantService } from '../../../modules/tenant/application/tenant.service';
 import InMemoryTenantRepository from '../../../modules/tenant/infrastructure/repositories/InMemoryTenant';
-import { LoginService } from '../../../modules/authentication/application/login.service';
+import { AuthenticationService } from '../../../modules/authentication/application/authentication.service';
 import { LoginController } from '../../../modules/authentication/infrastructure/http/controllers/Login.Controller';
+import { EmailService } from '../.././../modules/email/application/Email.service';
+import { GmailEmailGateway } from '../../../modules/email/infrastructure/email/GmailEmailServiceRepository';
+import { InMemorytokenRepository } from '../../../modules/authentication/infrastructure/repositories/InMemoryToken.repository';
+import { MailHogEmailGateway } from '../../../modules/email/infrastructure/email/MailhogEmailServiceGateway';
 
 void (async () => {
   const tenantService = new TenantService(new InMemoryTenantRepository());
@@ -18,12 +22,23 @@ void (async () => {
     new InMemoryUsuarioRepository(),
     tenantService,
   );
-  const loginService = new LoginService(usuarioService);
+  const gmailEmailGateway = new GmailEmailGateway();
+  const mailhogEmailGateway = new MailHogEmailGateway();
+  const emailService = new EmailService(
+    process.env.EMAIL_PROVIDER === 'GMAIL'
+      ? gmailEmailGateway
+      : mailhogEmailGateway,
+  );
+  const authenticationService = new AuthenticationService(
+    usuarioService,
+    emailService,
+    new InMemorytokenRepository(),
+  );
 
   const app = new App([
     new ClienteController(clienteService),
     new UsuarioController(usuarioService),
-    new LoginController(loginService, usuarioService),
+    new LoginController(authenticationService),
   ]);
 
   const server = app.listen();

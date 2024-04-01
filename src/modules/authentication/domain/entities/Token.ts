@@ -1,12 +1,13 @@
-import Entity from '@core:domain/entities/Entity';
-import type UniqueEntityId from '@core:domain/entities/UniqueEntityId';
+import Entity from '../../../../core/domain/entities/Entity';
+import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
 
 interface TokenProps {
   id?: string;
   token: string;
   usuarioId: string;
-  dataCadastro?: Date;
-  dataAtualizacao?: Date;
+  tenantId: string;
+  dataCadastro: Date;
+  dataAtualizacao: Date;
 }
 
 export class Token extends Entity<TokenProps> {
@@ -26,11 +27,15 @@ export class Token extends Entity<TokenProps> {
     return this.props.usuarioId;
   }
 
-  get dataCadastro(): Date | undefined {
+  get tenantId(): string {
+    return this.props.tenantId;
+  }
+
+  get dataCadastro(): Date {
     return this.props.dataCadastro;
   }
 
-  get dataAtualizacao(): Date | undefined {
+  get dataAtualizacao(): Date {
     return this.props.dataAtualizacao;
   }
 

@@ -10,6 +10,8 @@ import {
 } from '../../../../core/logic/Result';
 import type Usuario from '../../../../modules/usuario/domain/entities/Usuario';
 import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
+import type ITokenRepository from '../../../../modules/authentication/domain/repositories/ITokenRepository';
+import { type Token } from '../../domain/entities/Token';
 
 export interface LoginInput {
   email: string;
@@ -22,7 +24,9 @@ export class LoginUseCase
   implements
     IUseCase<{ login: LoginInput; usuario: Usuario }, Promise<Response>>
 {
-  constructor() {}
+  constructor(private readonly tokenRepository: ITokenRepository) {
+    this.tokenRepository = tokenRepository;
+  }
 
   async execute(input: {
     login: LoginInput;
@@ -46,13 +50,24 @@ export class LoginUseCase
           id: input.usuario.id.toString(),
           nome: input.usuario.nome,
           email: input.usuario.email,
+          tenantId: input.usuario.tenantId,
         },
         JWT_SECRET as Secret,
         {
           subject: input.usuario.id.toString(),
-          expiresIn: '20s',
+          expiresIn: '1d',
         },
       );
+
+      const tokenData = {
+        token,
+        usuarioId: input.usuario.id.toString(),
+        tenantId: input.usuario.tenantId,
+        dataCadastro: new Date(),
+        dataAtualizacao: new Date(),
+      };
+
+      await this.tokenRepository.save(tokenData as Token);
 
       return right(
         Result.ok<{ token: string }>({

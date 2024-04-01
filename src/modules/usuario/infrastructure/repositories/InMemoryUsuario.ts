@@ -61,4 +61,18 @@ export default class InMemoryUsuario implements IUsuarioRepository {
 
     return right(Result.ok<Usuario>(usuarioData));
   }
+
+  async RedefinirSenha(usuario: Usuario): Promise<any> {
+    const usuarioEncontrado = this.usuarios.find((usuario) =>
+      usuario.id.equals(usuario.id),
+    );
+
+    if (!usuarioEncontrado) {
+      return left(new UsuarioRepositoryErrors.UsuarioNotExists());
+    }
+
+    usuarioEncontrado.redefinirSenha(usuario.password);
+
+    return right(Result.ok<Usuario>(usuarioEncontrado));
+  }
 }

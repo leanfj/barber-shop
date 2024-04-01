@@ -9,4 +9,5 @@ export default interface IUsuarioRepository
   extends IRepository<Usuario, Response> {
   findByEmail: (input: string) => Promise<Response>;
   findActivedByEmail: (input: string) => Promise<Response>;
+  RedefinirSenha: (input: Usuario) => Promise<any>;
 }

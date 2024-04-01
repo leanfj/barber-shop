@@ -10,6 +10,7 @@ import { type GetactiveUserByEmailInput } from '../../../../../modules/usuario/a
 import { GetActiveUserByEmailErrors } from '../../../../../modules/usuario/application/useCase/GetActiveUserByEmailErrors';
 import { GetUsuarioByEmailErrors } from '../../../../../modules/usuario/application/useCase/GetUsuarioByEmailErrors';
 import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
+import { CadastraTenantErrors } from '../../../../../modules/tenant/application/useCase/CadastraTenantError';
 
 export class UsuarioController extends IBaseController {
   public path = '/usuarios';
@@ -114,7 +115,8 @@ export class UsuarioController extends IBaseController {
 
       if (result.isLeft()) {
         if (
-          result.value instanceof CadastraUsuarioErrors.UsuarioAlreadyExists
+          result.value instanceof CadastraUsuarioErrors.UsuarioAlreadyExists ||
+          result.value instanceof CadastraTenantErrors.TenantAlreadyExists
         ) {
           return this.conflict(response, result.value.getErrorValue().message);
         }

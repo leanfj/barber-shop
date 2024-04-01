@@ -19,6 +19,10 @@ import {
   type GetactiveUserByEmailInput,
 } from './useCase/GetActiveUserByEmail';
 import { type TenantService } from '../../../modules/tenant/application/tenant.service';
+import {
+  RedefinirSenhaUsuarioUseCase,
+  type RedefinirSenhaUsuarioInput,
+} from './useCase/RedefinirSenhaUsuario.useCase';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 
@@ -27,6 +31,7 @@ export class UsuarioService {
   private readonly getUsuarioByEmail: GetUsuarioByEmail;
   private readonly getActiveUserByEmail: GetActiveUserByEmail;
   private readonly getUsuarioById: GetUsuarioById;
+  private readonly redefinirSenhaUsuarioUseCase: RedefinirSenhaUsuarioUseCase;
 
   private readonly tenantService: TenantService;
 
@@ -39,6 +44,9 @@ export class UsuarioService {
     this.getUsuarioByEmail = new GetUsuarioByEmail(usuarioRepository);
     this.getActiveUserByEmail = new GetActiveUserByEmail(usuarioRepository);
     this.getUsuarioById = new GetUsuarioById(usuarioRepository);
+    this.redefinirSenhaUsuarioUseCase = new RedefinirSenhaUsuarioUseCase(
+      usuarioRepository,
+    );
   }
 
   public async create(input: CadastraUsuarioInput): Promise<Response> {
@@ -105,6 +113,23 @@ export class UsuarioService {
   public async getById(id: GetUsuarioByIdInput): Promise<Response> {
     try {
       const result = await this.getUsuarioById.execute(id);
+
+      if (result.isLeft()) {
+        return left(result.value);
+      } else {
+        const usuario = result.value.getValue();
+        return right(Result.ok<Usuario>(usuario));
+      }
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async redefinirSenha(
+    input: RedefinirSenhaUsuarioInput,
+  ): Promise<Response> {
+    try {
+      const result = await this.redefinirSenhaUsuarioUseCase.execute(input);
 
       if (result.isLeft()) {
         return left(result.value);

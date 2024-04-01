@@ -7,4 +7,13 @@ export namespace LoginErrors {
       super(false, new UseCaseError('Email ou senha incorretos'));
     }
   }
+
+  export class UserNotFound extends Result<UseCaseError> {
+    constructor() {
+      super(
+        false,
+        new UseCaseError('Caso usuário exista, o e-mail será enviado'),
+      );
+    }
+  }
 }

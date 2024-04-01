@@ -2,18 +2,15 @@ import { IBaseController } from '../../../../../core/infrastructure/http/IBaseCo
 import { type Request, type Response, Router } from 'express';
 
 import { type LoginInput } from '../../../../../modules/authentication/application/useCase/login.useCase';
-import { type LoginService } from '../../../../../modules/authentication/application/login.service';
-import { type UsuarioService } from '../../../../../modules/usuario/application/Usuario.service';
+import { type AuthenticationService } from '../../../application/authentication.service';
 import { LoginErrors } from '../../../../../modules/authentication/application/useCase/loginErrors';
+import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 
 export class LoginController extends IBaseController {
   public path = '/authentication';
   public router = Router();
 
-  constructor(
-    private readonly loginService: LoginService,
-    private readonly usuarioService: UsuarioService,
-  ) {
+  constructor(private readonly authenticationService: AuthenticationService) {
     super();
     this.initializeRoutes();
   }
@@ -27,11 +24,23 @@ export class LoginController extends IBaseController {
       },
     );
 
-    // this.router.patch(
-    //   `${this.path}/:id`,
-    //   (request: Request, response: Response, next: NextFunction) =>
-    //     this.update(request, response, next)
-    // );
+    this.router.post(
+      `${this.path}/resetPassword`,
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.requestResetPassword(request, response);
+      },
+    );
+
+    this.router.patch(
+      `${this.path}/changePassword`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      ensureAuthenticated(),
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.changePassword(request, response);
+      },
+    );
 
     // this.router.delete(
     //   `${this.path}/:id`,
@@ -74,7 +83,7 @@ export class LoginController extends IBaseController {
     try {
       const body: LoginInput = request.body;
 
-      const result = await this.loginService.login(body);
+      const result = await this.authenticationService.login(body);
 
       if (result.isLeft()) {
         if (result.value instanceof LoginErrors.PasswordOrEmailIncorrect) {
@@ -92,26 +101,57 @@ export class LoginController extends IBaseController {
     }
   }
 
-  //   async update(request: Request, response: Response, next: NextFunction) {
-  //     const cliente = JSON.parse(decodeURIComponent(request.body));
-  //     const id = request.params.id;
-  //     try {
-  //       const result = await this.clienteService.update(
-  //         cliente,
-  //         new UniqueEntityID(id)
-  //       );
-  //       if (result.isLeft()) {
-  //         if (result.value instanceof UpdateClienteErrors.ClienteNotExists) {
-  //           return this.notFound(response, result.value.getErrorValue().message);
-  //         }
-  //         return this.fail(response, result.value.getErrorValue().message);
-  //       } else {
-  //         return this.ok(response, cliente);
-  //       }
-  //     } catch (err) {
-  //       return this.fail(response, err);
-  //     }
-  //   }
+  async requestResetPassword(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    try {
+      const body: LoginInput = request.body;
+
+      const result = await this.authenticationService.requestResetPassword(
+        body.email,
+      );
+
+      if (result.isLeft()) {
+        if (result.value instanceof LoginErrors.UserNotFound) {
+          return this.ok(response, result.value.getErrorValue().message);
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async changePassword(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    const usuarioId = request.query.usuarioId as string;
+    const password = request.body.password as string;
+    const resetPasswordToken = request.query.resetPasswordToken as string;
+
+    try {
+      const result = await this.authenticationService.resetPassword(
+        usuarioId,
+        resetPasswordToken,
+        password,
+      );
+
+      if (result.isLeft()) {
+        if (result.value instanceof LoginErrors.UserNotFound) {
+          return this.ok(response, result.value.getErrorValue().message);
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
 
   //   async delete(request: Request, response: Response, next: NextFunction) {
   //     const id = request.params.id;

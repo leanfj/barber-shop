@@ -49,6 +49,10 @@ export default class Usuario extends Entity<UsuarioProps> {
     return this.props.isActive;
   }
 
+  public redefinirSenha(newPassword: string): void {
+    this.props.password = newPassword;
+  }
+
   static create(props: UsuarioProps, id?: UniqueEntityId): Usuario {
     return new Usuario(props, id);
   }

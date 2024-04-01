@@ -2,10 +2,13 @@ import { type ZodError } from 'zod';
 import { UseCaseError } from '../../../../core/application/useCase/UseCaseError';
 import { Result } from '../../../../core/logic/Result';
 
-export namespace CadastraTenantErrors {
-  export class TenantAlreadyExists extends Result<UseCaseError> {
-    constructor() {
-      super(false, new UseCaseError(`Usuario/Tenant já existe.`));
+export namespace RedefinirSenhaUsuarioUseCaseErrors {
+  export class UsuarioNaoEncontrado extends Result<UseCaseError> {
+    constructor(email: string) {
+      super(
+        false,
+        new UseCaseError(`Usuario com email ${email} não foi encontrado.`),
+      );
     }
   }
 
