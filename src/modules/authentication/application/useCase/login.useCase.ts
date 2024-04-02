@@ -76,6 +76,14 @@ export class LoginUseCase
         dataAtualizacao: new Date(),
       });
 
+      const tokenExist = await this.tokenRepository.findByUsuarioId(
+        input.usuario.id.toString(),
+      );
+
+      if (tokenExist.isRight()) {
+        await this.tokenRepository.delete(tokenExist.value.getValue());
+      }
+
       await this.tokenRepository.save(refreshToken);
 
       return right(

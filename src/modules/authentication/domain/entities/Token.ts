@@ -33,7 +33,7 @@ export class Token extends Entity<TokenProps> {
     return this.props.tenantId;
   }
 
-  get dataExpiracao(): number {
+  get dataExpiracao(): string {
     return this.props.dataExpiracao.getValue();
   }
 

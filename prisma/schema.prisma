@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(uuid())
+  tenantId        String
+  nome            String
+  email           String
+  password        String
+  isActive        Boolean
+  dataCadastro    DateTime @default(now())
+  dataAtualizacao DateTime @default(now())
+
+  token  Token[]
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("users")
+}
+
+model Tenant {
+  id              String   @id @default(uuid())
+  nome            String
+  slug            String
+  isAtivo         Boolean
+  dataCadastro    DateTime @default(now())
+  dataAtualizacao DateTime @default(now())
+
+  usuarios User[]
+  clientes Cliente[]
+  tokens   Token[]
+
+  @@map("tenants")
+}
+
+model Cliente {
+  id              String   @id @default(uuid())
+  tenantId        String
+  nome            String
+  email           String?
+  genero          String?
+  telefone        String
+  endereco        String?
+  cidade          String?
+  estado          String?
+  cep             String?
+  cpf             String?
+  dataNascimento  DateTime
+  dataCadastro    DateTime @default(now())
+  dataAtualizacao DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("clientes")
+}
+
+model Token {
+  id              String   @id @default(uuid())
+  token           String
+  usuarioId       String   @unique
+  tenantId        String
+  dataExpiracao   String
+  dataCadastro    DateTime @default(now())
+  dataAtualizacao DateTime @default(now())
+
+  usuario User   @relation(fields: [usuarioId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  tenant  Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("tokens")
+}

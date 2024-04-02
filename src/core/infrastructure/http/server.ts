@@ -1,5 +1,4 @@
 import InMemoryClienteRepository from '../../../modules/cliente/infrastructure/repositories/InMemoryCliente';
-import InMemoryUsuarioRepository from '../../../modules/usuario/infrastructure/repositories/InMemoryUsuario';
 import { ClienteService } from '../../../modules/cliente/application/Cliente.service';
 import { UsuarioService } from '../../../modules/usuario/application/Usuario.service';
 import { ClienteController } from '../../../modules/cliente/infrastructure/http/controllers/Cliente.controller';
@@ -7,19 +6,20 @@ import { UsuarioController } from '../../../modules/usuario/infrastructure/http/
 import App from './app';
 import colors from 'colors/safe';
 import { TenantService } from '../../../modules/tenant/application/tenant.service';
-import InMemoryTenantRepository from '../../../modules/tenant/infrastructure/repositories/InMemoryTenant';
 import { AuthenticationService } from '../../../modules/authentication/application/authentication.service';
 import { AuthenticationController } from '../../../modules/authentication/infrastructure/http/controllers/Authentication.Controller';
 import { EmailService } from '../.././../modules/email/application/Email.service';
 import { GmailEmailGateway } from '../../../modules/email/infrastructure/email/GmailEmailServiceRepository';
-import { InMemorytokenRepository } from '../../../modules/authentication/infrastructure/repositories/InMemoryToken.repository';
 import { MailHogEmailGateway } from '../../../modules/email/infrastructure/email/MailhogEmailServiceGateway';
+import PrismaUsuarioRepository from '../../../modules/usuario/infrastructure/repositories/PrismaUsuario.repository';
+import PrismaTenantRepository from '../../../modules/tenant/infrastructure/repositories/PrismaTenant.repository';
+import { PrismaTokenRepository } from '../../../modules/authentication/infrastructure/repositories/PrismaToken.repository';
 
 void (async () => {
-  const tenantService = new TenantService(new InMemoryTenantRepository());
+  const tenantService = new TenantService(new PrismaTenantRepository());
   const clienteService = new ClienteService(new InMemoryClienteRepository());
   const usuarioService = new UsuarioService(
-    new InMemoryUsuarioRepository(),
+    new PrismaUsuarioRepository(),
     tenantService,
   );
   const gmailEmailGateway = new GmailEmailGateway();
@@ -32,7 +32,7 @@ void (async () => {
   const authenticationService = new AuthenticationService(
     usuarioService,
     emailService,
-    new InMemorytokenRepository(),
+    new PrismaTokenRepository(),
   );
 
   const app = new App([

@@ -2,7 +2,7 @@ import { addSeconds } from 'date-fns';
 import { ValueObject } from './ValueObjects';
 
 interface DataExpiracaoProps {
-  value: number;
+  value: string;
 }
 
 export default class DataExpiracao extends ValueObject<DataExpiracaoProps> {
@@ -10,12 +10,12 @@ export default class DataExpiracao extends ValueObject<DataExpiracaoProps> {
     super(props);
   }
 
-  getValue(): number {
+  getValue(): string {
     return this.props.value;
   }
 
   public static setValue(): DataExpiracao {
     const valueParsed = addSeconds(new Date(), 15).getTime();
-    return new DataExpiracao({ value: valueParsed });
+    return new DataExpiracao({ value: valueParsed.toString() });
   }
 }

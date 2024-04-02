@@ -41,6 +41,8 @@ export class RequestRefreshTokenUseCase
         return left(new RequestRefreshTokenErrors.TokenInvalid());
       }
 
+      await this.tokenRepository.delete(tokenData.value.getValue());
+
       const { JWT_SECRET } = process.env;
 
       const tokenJWT = sign(
@@ -71,7 +73,6 @@ export class RequestRefreshTokenUseCase
       });
 
       await this.tokenRepository.save(token);
-      await this.tokenRepository.delete(tokenData.value.getValue());
 
       return right(
         Result.ok<{
