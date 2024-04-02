@@ -6,7 +6,7 @@
   "scripts": {
     "tsc": "tsc",
     "build": "babel src --extensions \".js,.ts\" --out-dir dist --copy-files",
-    "dev": "NODE_ENV=development nodemon src/index.ts",
+    "dev": "NODE_ENV=development dotenv -e ./env/.env.development nodemon src/index.ts",
     "start": "node dist/index.js",
     "test": "jest --passWithNoTests --noStackTrace --runInBand",
     "test-verbose": "jest --passWithNoTests --runInBand",
@@ -19,7 +19,9 @@
     "prepare": "husky install",
     "lint-staged": "lint-staged",
     "eslint:fix": "eslint --quiet --fix",
-    "snyk": "snyk test"
+    "snyk": "snyk test",
+    "migrate_dev:postgres": "dotenv -e ./env/.env.development -- npx prisma migrate dev",
+    "migrate_deploy:postgres": "dotenv -e ./env/.env.development -- npx prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
@@ -57,6 +59,7 @@
     "lint-staged": "^15.2.2",
     "nodemon": "^3.1.0",
     "prettier": "^3.2.5",
+    "prisma": "^5.11.0",
     "snyk": "^1.1285.0",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
@@ -71,11 +74,13 @@
     ]
   },
   "dependencies": {
+    "@prisma/client": "^5.11.0",
     "bcrypt": "^5.1.1",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.1",
     "express": "^4.19.1",
     "handlebars": "^4.7.8",
     "helmet": "^7.1.0",
