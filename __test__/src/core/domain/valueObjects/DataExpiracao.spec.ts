@@ -5,6 +5,6 @@ describe('DataExpiracao', () => {
     const dataExpiracao = DataExpiracao.setValue();
 
     expect(dataExpiracao).toBeInstanceOf(DataExpiracao);
-    expect(dataExpiracao.getValue()).toBeGreaterThan(Date.now());
+    expect(parseInt(dataExpiracao.getValue())).toBeGreaterThan(Date.now());
   });
 });
