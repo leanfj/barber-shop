@@ -10,6 +10,7 @@ import { type EmailService } from '../../email/application/Email.service';
 import { ResetPasswordUseCase } from './useCase/resetPassword.useCase';
 import { type Token } from '../domain/entities/Token';
 import { RequestRefreshTokenUseCase } from './useCase/requestRefreshToken.useCase';
+import { LogoutUseCase } from './useCase/logout.useCase ';
 
 type Response = Either<
   AppError.UnexpectedError,
@@ -24,10 +25,13 @@ type Response = Either<
   >
 >;
 
+type ResponseLogin = Either<AppError.UnexpectedError, Result<{ token: Token }>>;
+
 export class AuthenticationService {
   private readonly usuarioService: UsuarioService;
   private readonly emailService: EmailService;
   private readonly loginUseCase: LoginUseCase;
+  private readonly logOutUseCase: LogoutUseCase;
   private readonly requestResetPasswordUseCase: RequestResetPasswordUseCase;
   private readonly resetPasswordUseCase: ResetPasswordUseCase;
   private readonly requestRefreshTokenUseCase: RequestRefreshTokenUseCase;
@@ -40,6 +44,7 @@ export class AuthenticationService {
     this.usuarioService = usuarioService;
     this.emailService = emailService;
     this.loginUseCase = new LoginUseCase(tokenRepository);
+    this.logOutUseCase = new LogoutUseCase(tokenRepository);
     this.resetPasswordUseCase = new ResetPasswordUseCase(tokenRepository);
     this.requestResetPasswordUseCase = new RequestResetPasswordUseCase(
       tokenRepository,
@@ -49,7 +54,7 @@ export class AuthenticationService {
     );
   }
 
-  public async login(login: LoginInput): Promise<Response> {
+  public async login(login: LoginInput): Promise<ResponseLogin> {
     try {
       const getUsuarioByEmailInput: GetUsuarioByEmailInput = {
         email: login.email,
@@ -71,11 +76,35 @@ export class AuthenticationService {
       if (result.isLeft()) {
         return left(result.value);
       } else {
-        return right(
-          Result.ok<{ token: string; refreshToken: Token }>(
-            result.value.getValue(),
-          ),
-        );
+        return right(Result.ok<{ token: Token }>(result.value.getValue()));
+      }
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async logout(email: string): Promise<Response> {
+    try {
+      const getUsuarioByEmailInput: GetUsuarioByEmailInput = {
+        email,
+      };
+
+      const usuario = await this.usuarioService.getByEmail(
+        getUsuarioByEmailInput,
+      );
+
+      if (usuario.isLeft()) {
+        return left(new LoginErrors.UserNotFoundEmail());
+      }
+
+      const result = await this.logOutUseCase.execute({
+        usuario: usuario.value.getValue(),
+      });
+
+      if (result.isLeft()) {
+        return left(result.value);
+      } else {
+        return right(Result.ok<string>(result.value.getValue()));
       }
     } catch (error) {
       return left(new AppError.UnexpectedError(error));

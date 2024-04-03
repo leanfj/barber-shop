@@ -1,10 +1,11 @@
 import type DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
 import Entity from '../../../../core/domain/entities/Entity';
 import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
+import TokenVO from '../../../../core/domain/valueObjects/Token';
 
 interface TokenProps {
   id?: string;
-  token: string;
+  token: TokenVO | string;
   usuarioId: string;
   tenantId: string;
   dataExpiracao: DataExpiracao;
@@ -22,6 +23,10 @@ export class Token extends Entity<TokenProps> {
   }
 
   get token(): string {
+    if (this.props.token instanceof TokenVO) {
+      return this.props.token.getValue();
+    }
+
     return this.props.token;
   }
 

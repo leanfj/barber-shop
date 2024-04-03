@@ -7,4 +7,10 @@ export namespace RequestRefreshTokenErrors {
       super(false, new UseCaseError('Token inválido'));
     }
   }
+
+  export class TokenExpired extends Result<UseCaseError> {
+    constructor() {
+      super(false, new UseCaseError('Token expirado'));
+    }
+  }
 }

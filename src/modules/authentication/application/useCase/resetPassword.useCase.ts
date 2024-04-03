@@ -40,6 +40,10 @@ export class ResetPasswordUseCase
 
       const tokenHash = tokenOrError.value.getValue().token;
 
+      if (!tokenHash) {
+        return left(new TokenErrors.TokenInvalid());
+      }
+
       const isValid = await compare(resetPasswordToken, tokenHash);
 
       if (!isValid) {

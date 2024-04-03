@@ -1,4 +1,5 @@
 import { type Request, type Response, Router } from 'express';
+import { serialize } from 'cookie';
 import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 import { type LoginInput } from '../../../application/useCase/login.useCase';
@@ -21,6 +22,14 @@ export class AuthenticationController extends IBaseController {
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.login(request, response);
+      },
+    );
+
+    this.router.post(
+      `${this.path}/logout`,
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.logout(request, response);
       },
     );
 
@@ -102,6 +111,56 @@ export class AuthenticationController extends IBaseController {
         }
         return this.fail(response, result.value.getErrorValue().message);
       }
+
+      const { token } = result.value.getValue().token;
+
+      if (!token) {
+        return this.fail(response, 'Falha ao gerar token de autenticação.');
+      }
+
+      const serialized = serialize('refreshToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+      });
+
+      response.setHeader('Set-Cookie', serialized);
+
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async logout(request: Request, response: Response): Promise<Response> {
+    try {
+      const body: { email: string } = request.body;
+
+      const result = await this.authenticationService.logout(body.email);
+
+      if (result.isLeft()) {
+        if (result.value instanceof LoginErrors.UserNotFoundEmail) {
+          return this.unauthorized(
+            response,
+            result.value.getErrorValue().message,
+          );
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      }
+
+      const serialized = serialize('refreshToken', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: -1,
+        path: '/',
+      });
+
+      response.setHeader('Set-Cookie', serialized);
+
       return this.ok(response, result.value.getValue());
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

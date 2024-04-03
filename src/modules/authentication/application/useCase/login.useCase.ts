@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import { type Secret, sign } from 'jsonwebtoken';
 import { LoginErrors } from './loginErrors';
 import { AppError } from '../../../../core/application/AppError';
 import {
@@ -13,16 +12,14 @@ import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
 import type ITokenRepository from '../../../../modules/authentication/domain/repositories/ITokenRepository';
 import { Token } from '../../domain/entities/Token';
 import DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
+import TokenVO from '../../../../core/domain/valueObjects/Token';
 
 export interface LoginInput {
   email: string;
   password: string;
 }
 
-type Response = Either<
-  AppError.UnexpectedError,
-  Result<{ token: string; refreshToken: Token }>
->;
+type Response = Either<AppError.UnexpectedError, Result<{ token: Token }>>;
 
 export class LoginUseCase
   implements
@@ -47,33 +44,18 @@ export class LoginUseCase
         return left(new LoginErrors.PasswordOrEmailIncorrect());
       }
 
-      const { JWT_SECRET } = process.env;
-
-      const tokenJWT = sign(
-        {
-          id: input.usuario.id.toString(),
-          nome: input.usuario.nome,
-          email: input.usuario.email,
-          tenantId: input.usuario.tenantId,
-        },
-        JWT_SECRET as Secret,
-        {
-          subject: input.usuario.id.toString(),
-          expiresIn: '1d',
-        },
-      );
-
-      const salt = await bcrypt.genSalt(12);
-
-      const tokenHash = await bcrypt.hash(tokenJWT, salt);
-
-      const refreshToken = Token.create({
-        token: tokenHash,
+      const token = Token.create({
         dataExpiracao: DataExpiracao.setValue(),
         usuarioId: input.usuario.id.toString(),
         tenantId: input.usuario.tenantId,
         dataCadastro: new Date(),
         dataAtualizacao: new Date(),
+        token: await TokenVO.setValue({
+          id: input.usuario.id.toString(),
+          nome: input.usuario.nome,
+          email: input.usuario.email,
+          tenantId: input.usuario.tenantId,
+        }),
       });
 
       const tokenExist = await this.tokenRepository.findByUsuarioId(
@@ -84,12 +66,11 @@ export class LoginUseCase
         await this.tokenRepository.delete(tokenExist.value.getValue());
       }
 
-      await this.tokenRepository.save(refreshToken);
+      await this.tokenRepository.save(token);
 
       return right(
-        Result.ok<{ token: string; refreshToken: Token }>({
-          token: tokenJWT,
-          refreshToken,
+        Result.ok<{ token: Token }>({
+          token,
         }),
       );
     } catch (error) {
