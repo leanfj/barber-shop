@@ -25,7 +25,10 @@ type Response = Either<
   >
 >;
 
-type ResponseLogin = Either<AppError.UnexpectedError, Result<{ token: Token }>>;
+type ResponseLogin = Either<
+  AppError.UnexpectedError,
+  Result<{ token: Token; refreshToken: string }>
+>;
 
 export class AuthenticationService {
   private readonly usuarioService: UsuarioService;
@@ -75,8 +78,26 @@ export class AuthenticationService {
 
       if (result.isLeft()) {
         return left(result.value);
+      }
+
+      const refreshToken = await this.requestRefreshTokenUseCase.execute({
+        token: result.value.getValue().token.token,
+        usuario: usuario.value.getValue(),
+      });
+
+      if (refreshToken.isLeft()) {
+        return left(refreshToken.value);
+      }
+
+      if (result.isLeft()) {
+        return left(result.value);
       } else {
-        return right(Result.ok<{ token: Token }>(result.value.getValue()));
+        return right(
+          Result.ok<{ token: Token; refreshToken: string }>({
+            token: result.value.getValue().token,
+            refreshToken: refreshToken.value.getValue().token,
+          }),
+        );
       }
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
@@ -227,13 +248,11 @@ export class AuthenticationService {
         return left(requestRefreshPasswordOrError.value);
       }
 
-      const refreshToken = requestRefreshPasswordOrError.value.getValue();
-
       return right(
         Result.ok<{
           token: string;
         }>({
-          token: refreshToken.token,
+          token: requestRefreshPasswordOrError.value.getValue().token,
         }),
       );
     } catch (error) {

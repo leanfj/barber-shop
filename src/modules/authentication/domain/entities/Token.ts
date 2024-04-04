@@ -1,7 +1,7 @@
 import type DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
 import Entity from '../../../../core/domain/entities/Entity';
 import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
-import TokenVO from '../../../../core/domain/valueObjects/Token';
+import TokenVO from '../../../../core/domain/valueObjects/TokenVO';
 
 interface TokenProps {
   id?: string;

@@ -12,7 +12,7 @@ import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
 import type ITokenRepository from '../../../../modules/authentication/domain/repositories/ITokenRepository';
 import { Token } from '../../domain/entities/Token';
 import DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
-import TokenVO from '../../../../core/domain/valueObjects/Token';
+import TokenVO from '../../../../core/domain/valueObjects/TokenVO';
 
 export interface LoginInput {
   email: string;
@@ -55,6 +55,7 @@ export class LoginUseCase
           nome: input.usuario.nome,
           email: input.usuario.email,
           tenantId: input.usuario.tenantId,
+          expiresIn: '1d',
         }),
       });
 

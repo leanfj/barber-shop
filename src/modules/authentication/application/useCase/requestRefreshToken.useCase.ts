@@ -10,9 +10,9 @@ import {
 import { Token } from '../../domain/entities/Token';
 import type ITokenRepository from '../../domain/repositories/ITokenRepository';
 import type Usuario from '../../../usuario/domain/entities/Usuario';
-import { RequestRefreshTokenErrors } from './requestRefreshTokenErrors';
 import { getUnixTime, isAfter } from 'date-fns';
-import TokenVO from '../../../../core/domain/valueObjects/Token';
+import { RequestRefreshTokenErrors } from './requestRefreshTokenErrors';
+import TokenVO from '../../../../core/domain/valueObjects/TokenVO';
 
 type Response = Either<
   AppError.UnexpectedError,
@@ -40,6 +40,7 @@ export class RequestRefreshTokenUseCase
       if (tokenData.isLeft()) {
         return left(new RequestRefreshTokenErrors.TokenInvalid());
       }
+
       const tokenDataExpired = isAfter(
         new Date(),
         getUnixTime(parseInt(tokenData.value.getValue().dataExpiracao)),
@@ -50,17 +51,17 @@ export class RequestRefreshTokenUseCase
       }
 
       const token = Token.create({
+        dataExpiracao: DataExpiracao.setValue(),
+        usuarioId: input.usuario.id.toString(),
+        tenantId: input.usuario.tenantId,
+        dataCadastro: new Date(),
+        dataAtualizacao: new Date(),
         token: await TokenVO.setValue({
-          id: tokenData.value.getValue().id.toString(),
+          id: input.usuario.id.toString(),
           nome: input.usuario.nome,
           email: input.usuario.email,
           tenantId: input.usuario.tenantId,
         }),
-        usuarioId: input.usuario.id.toString(),
-        tenantId: input.usuario.tenantId,
-        dataExpiracao: DataExpiracao.setValue(),
-        dataCadastro: new Date(),
-        dataAtualizacao: new Date(),
       });
 
       await this.tokenRepository.save(token);

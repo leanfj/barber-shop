@@ -112,13 +112,9 @@ export class AuthenticationController extends IBaseController {
         return this.fail(response, result.value.getErrorValue().message);
       }
 
-      const { token } = result.value.getValue().token;
+      const { token, refreshToken } = result.value.getValue();
 
-      if (!token) {
-        return this.fail(response, 'Falha ao gerar token de autenticação.');
-      }
-
-      const serialized = serialize('refreshToken', token, {
+      const serialized = serialize('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -128,7 +124,7 @@ export class AuthenticationController extends IBaseController {
 
       response.setHeader('Set-Cookie', serialized);
 
-      return this.ok(response, result.value.getValue());
+      return this.ok(response, { token, refreshToken });
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       return this.fail(response, err);

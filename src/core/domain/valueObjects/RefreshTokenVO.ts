@@ -1,12 +1,13 @@
 import { type Secret, sign } from 'jsonwebtoken';
 import { ValueObject } from './ValueObjects';
 
-interface TokenProps {
+interface RefreshTokenProps {
   value: string;
+  expiresIn?: string;
 }
 
-export default class TokenVO extends ValueObject<TokenProps> {
-  constructor(props: TokenProps) {
+export default class RefreshTokenVO extends ValueObject<RefreshTokenProps> {
+  constructor(props: RefreshTokenProps) {
     super(props);
   }
 
@@ -19,9 +20,10 @@ export default class TokenVO extends ValueObject<TokenProps> {
     nome: string;
     email: string;
     tenantId: string;
-  }): Promise<TokenVO> {
+    expiresIn?: string;
+  }): Promise<RefreshTokenVO> {
     const valueParsed = await this.generateToken(value);
-    return new TokenVO({ value: valueParsed });
+    return new RefreshTokenVO({ value: valueParsed });
   }
 
   private static async generateToken(data: {
@@ -29,11 +31,12 @@ export default class TokenVO extends ValueObject<TokenProps> {
     nome: string;
     email: string;
     tenantId: string;
+    expiresIn?: string;
   }): Promise<string> {
     const { JWT_SECRET } = process.env;
 
     const tokenJWT = sign(data, JWT_SECRET as Secret, {
-      expiresIn: '1d',
+      expiresIn: data.expiresIn ?? '30d',
     });
 
     return tokenJWT;

@@ -2,6 +2,6 @@ import { HttpException } from '../../../../../core/infrastructure/http/exception
 
 export class TimeoutAuthenticationTokenException extends HttpException {
   constructor() {
-    super(403, 'Assinatura do Token expirada.');
+    super(401, 'Assinatura do Token expirada.');
   }
 }
