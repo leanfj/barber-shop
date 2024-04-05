@@ -12,8 +12,7 @@ export function ensureAuthenticated(): any {
     response: Response,
     next: NextFunction,
   ) => {
-    const authToken = request.headers.authorization;
-
+    const authToken: string = request.cookies.token;
     try {
       if (authToken != null) {
         const secret = process.env.JWT_SECRET;
@@ -21,8 +20,10 @@ export function ensureAuthenticated(): any {
         if (secret == null) {
           throw new Error('Erro interno do servidor.');
         }
-        const token = authToken.split(' ')[1];
-        const decoded = verify(token, secret) as unknown as IDataStoredInToken;
+        const decoded = verify(
+          authToken,
+          secret,
+        ) as unknown as IDataStoredInToken;
         request.usuarioId = decoded.id;
       } else {
         next(new AuthenticationTokenMissingException());

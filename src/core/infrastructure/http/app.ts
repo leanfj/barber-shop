@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import colors from 'colors/safe';
+import cookieParser from 'cookie-parser';
 import { errorMiddleware } from './middlewares/error.middleware';
 import { loggerMiddleware } from './middlewares/logger.middleware';
 import helmet from 'helmet';
@@ -45,18 +46,15 @@ export default class App {
   }
 
   private initializeMiddlewares(): void {
-    this.app.use(express.json());
-    this.app.use(
-      express.text({
-        type: '*/*',
-      }),
-    );
-
     this.app.use(
       cors({
-        origin: '*',
+        origin: 'http://localhost:3000',
+        credentials: true,
+        methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
       }),
     );
+    this.app.use(cookieParser());
+    this.app.use(express.json());
   }
 
   private initializeErrorHandling(): void {

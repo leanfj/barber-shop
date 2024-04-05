@@ -114,15 +114,22 @@ export class AuthenticationController extends IBaseController {
 
       const { token, refreshToken } = result.value.getValue();
 
-      const serialized = serialize('refreshToken', refreshToken, {
+      const serializedRefreshToken = serialize('refreshToken', refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 60 * 60 * 24 * 30,
         path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 30,
       });
 
-      response.setHeader('Set-Cookie', serialized);
+      const serializedToken = serialize('token', token.token, {
+        httpOnly: true,
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 30,
+      });
+
+      response.setHeader('Set-Cookie', serializedRefreshToken);
+      response.setHeader('Set-Cookie', serializedToken);
 
       return this.ok(response, { token, refreshToken });
     } catch (err: any) {
