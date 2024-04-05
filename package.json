@@ -7,7 +7,7 @@
     "tsc": "tsc",
     "build": "babel src --extensions \".js,.ts\" --out-dir dist --copy-files",
     "dev": "NODE_ENV=development dotenv -e ./env/.env.development nodemon src/index.ts",
-    "start": "NODE_ENV=production node dotenv -e ./env/.env dist/index.js",
+    "start": "NODE_ENV=production node dist/index.js",
     "test": "jest --passWithNoTests --noStackTrace --runInBand",
     "test-verbose": "jest --passWithNoTests --runInBand",
     "test:unit": "npm test -- --watch -c jest.config.unit.ts",
@@ -22,8 +22,8 @@
     "snyk": "snyk test",
     "migrate_dev:postgres": "dotenv -e ./env/.env.development -- npx prisma migrate dev",
     "migrate_deploy:postgres": "dotenv -e ./env/.env.development -- npx prisma migrate deploy",
-    "migrate_prod:postgres": "dotenv -e ./env/.env -- npx prisma migrate dev",
-    "migrate_deploy_prod:postgres": "dotenv -e ./env/.env -- npx prisma migrate deploy"
+    "migrate_prod:postgres": "npx prisma migrate dev",
+    "migrate_deploy_prod:postgres": "npx prisma migrate deploy"
   },
   "keywords": [],
   "author": "",
