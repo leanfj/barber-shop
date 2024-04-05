@@ -48,7 +48,10 @@ export default class App {
   private initializeMiddlewares(): void {
     this.app.use(
       cors({
-        origin: 'http://localhost:3000',
+        origin: [
+          'http://localhost:3000',
+          'https://barber-shop-web-nine.vercel.app/',
+        ],
         credentials: true,
         methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
       }),
