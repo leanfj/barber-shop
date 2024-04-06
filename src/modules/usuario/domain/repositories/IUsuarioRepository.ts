@@ -10,4 +10,5 @@ export default interface IUsuarioRepository
   findByEmail: (input: string) => Promise<Response>;
   findActivedByEmail: (input: string) => Promise<Response>;
   RedefinirSenha: (input: Usuario) => Promise<any>;
+  ativar: (input: Usuario) => Promise<Response>;
 }

@@ -161,4 +161,42 @@ export default class PrismaUsuarioRepository implements IUsuarioRepository {
 
     return right(Result.ok<Usuario>(usuarioToApplication));
   }
+
+  async ativar(usuario: Usuario): Promise<any> {
+    const usuarioData = await prisma.user.findFirst({
+      where: {
+        id: usuario.id.toString(),
+      },
+    });
+
+    if (!usuarioData) {
+      return left(new UsuarioRepositoryErrors.UsuarioNotExists());
+    }
+
+    usuario.ativar();
+
+    const usuarioUpdate = await prisma.user.update({
+      where: {
+        id: usuario.id.toString(),
+      },
+      data: {
+        isActive: usuario.isActive,
+      },
+    });
+
+    const usuarioToApplication = Usuario.create(
+      {
+        nome: usuarioUpdate.nome,
+        tenantId: usuarioUpdate.tenantId,
+        email: usuarioUpdate.email,
+        password: usuarioUpdate.password,
+        isActive: usuarioUpdate.isActive,
+        dataAtualizacao: usuarioUpdate.dataAtualizacao,
+        dataCadastro: usuarioUpdate.dataCadastro,
+      },
+      new UniqueEntityId(usuarioUpdate.id),
+    );
+
+    return right(Result.ok<Usuario>(usuarioToApplication));
+  }
 }

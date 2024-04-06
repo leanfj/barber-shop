@@ -23,6 +23,10 @@ import {
   RedefinirSenhaUsuarioUseCase,
   type RedefinirSenhaUsuarioInput,
 } from './useCase/RedefinirSenhaUsuario.useCase';
+import { SendEmailAtivarUsuarioUseCase } from './useCase/SendEmailAtivarUsuario.useCase';
+import type ITokenRepository from '../../../modules/authentication/domain/repositories/ITokenRepository';
+import { GetUsuarioByEmailErrors } from './useCase/GetUsuarioByEmailErrors';
+import { type EmailService } from '../../../modules/email/application/Email.service';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 
@@ -32,20 +36,30 @@ export class UsuarioService {
   private readonly getActiveUserByEmail: GetActiveUserByEmail;
   private readonly getUsuarioById: GetUsuarioById;
   private readonly redefinirSenhaUsuarioUseCase: RedefinirSenhaUsuarioUseCase;
+  private readonly sendEmailAtivarUsuarioUseCase: SendEmailAtivarUsuarioUseCase;
 
   private readonly tenantService: TenantService;
+  private readonly emailService: EmailService;
 
   constructor(
     readonly usuarioRepository: IUsuarioRepository,
+    readonly tokenRepository: ITokenRepository,
+
     tenantService: TenantService,
+    emailService: EmailService,
   ) {
     this.tenantService = tenantService;
+    this.emailService = emailService;
     this.cadastraUsuario = new CadastraUsuario(usuarioRepository);
     this.getUsuarioByEmail = new GetUsuarioByEmail(usuarioRepository);
     this.getActiveUserByEmail = new GetActiveUserByEmail(usuarioRepository);
     this.getUsuarioById = new GetUsuarioById(usuarioRepository);
     this.redefinirSenhaUsuarioUseCase = new RedefinirSenhaUsuarioUseCase(
       usuarioRepository,
+    );
+    this.sendEmailAtivarUsuarioUseCase = new SendEmailAtivarUsuarioUseCase(
+      usuarioRepository,
+      tokenRepository,
     );
   }
 
@@ -54,7 +68,7 @@ export class UsuarioService {
       const tenant = await this.tenantService.create({
         nome: input.nome,
         slug: input.nome,
-        isAtivo: true,
+        isAtivo: false,
         dataCadastro: new Date(),
         dataAtualizacao: new Date(),
       });
@@ -64,15 +78,26 @@ export class UsuarioService {
       }
 
       const usuario = await this.cadastraUsuario.execute({
-        ...input,
+        email: input.email,
+        isActive: false,
+        nome: input.nome,
+        password: input.password,
         tenantId: tenant.value.getValue().id.toString(),
       });
 
       if (usuario.isLeft()) {
         return left(usuario.value);
-      } else {
-        return right(Result.ok<Usuario>(usuario.value.getValue()));
       }
+
+      const sendEmailOrError = await this.sendEmailAtivarUsuario({
+        email: input.email,
+      });
+
+      if (sendEmailOrError.isLeft()) {
+        return left(sendEmailOrError.value);
+      }
+
+      return right(Result.ok<Usuario>(usuario.value.getValue()));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }
@@ -84,10 +109,10 @@ export class UsuarioService {
 
       if (result.isLeft()) {
         return left(result.value);
-      } else {
-        const usuario = result.value.getValue();
-        return right(Result.ok<Usuario>(usuario));
       }
+
+      const usuario = result.value.getValue();
+      return right(Result.ok<Usuario>(usuario));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }
@@ -101,10 +126,9 @@ export class UsuarioService {
 
       if (result.isLeft()) {
         return left(result.value);
-      } else {
-        const usuario = result.value.getValue();
-        return right(Result.ok<Usuario>(usuario));
       }
+      const usuario = result.value.getValue();
+      return right(Result.ok<Usuario>(usuario));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }
@@ -116,10 +140,9 @@ export class UsuarioService {
 
       if (result.isLeft()) {
         return left(result.value);
-      } else {
-        const usuario = result.value.getValue();
-        return right(Result.ok<Usuario>(usuario));
       }
+      const usuario = result.value.getValue();
+      return right(Result.ok<Usuario>(usuario));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }
@@ -133,10 +156,48 @@ export class UsuarioService {
 
       if (result.isLeft()) {
         return left(result.value);
-      } else {
-        const usuario = result.value.getValue();
-        return right(Result.ok<Usuario>(usuario));
       }
+      const usuario = result.value.getValue();
+      return right(Result.ok<Usuario>(usuario));
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async sendEmailAtivarUsuario(input: {
+    email: string;
+  }): Promise<Response> {
+    try {
+      const usuario = await this.getUsuarioByEmail.execute({
+        email: input.email,
+      });
+
+      if (usuario.isLeft()) {
+        return left(new GetUsuarioByEmailErrors.UsuarioNotExists());
+      }
+
+      const sendEmailAtivarUsuarioOrError =
+        await this.sendEmailAtivarUsuarioUseCase.execute({
+          email: usuario.value.getValue().email,
+        });
+
+      if (sendEmailAtivarUsuarioOrError.isLeft()) {
+        return left(sendEmailAtivarUsuarioOrError.value);
+      }
+
+      const { link } = sendEmailAtivarUsuarioOrError.value.getValue();
+
+      const sendEmailOrError = await this.emailService.sendActivationEmail({
+        email: usuario.value.getValue().email,
+        link,
+        usuario: usuario.value.getValue(),
+      });
+
+      if (sendEmailOrError.isLeft()) {
+        return left(sendEmailOrError.value);
+      }
+
+      return right(Result.ok<Usuario>(usuario.value.getValue()));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }

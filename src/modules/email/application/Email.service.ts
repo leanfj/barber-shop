@@ -4,17 +4,22 @@ import { type Either, Result, left, right } from '../../../core/logic/Result';
 import { type IEmailGateway } from '../domain/gateway/IEmail.gateway';
 import { SendRequestResetPasswordEmailUseCase } from './useCase/sendRequestResetPasswordEmail.useCase';
 import { SendResetPasswordEmailUseCase } from './useCase/sendResetPasswordEmail.useCase';
+import { SendActivationEmailUseCase } from './useCase/sendActivationEmail.useCase';
 
 type Response = Either<AppError.UnexpectedError, Result<string>>;
 
 export class EmailService {
   private readonly sendRequestResetPasswordEmailUseCase: SendRequestResetPasswordEmailUseCase;
   private readonly SendResetPasswordEmailUseCase: SendResetPasswordEmailUseCase;
+  private readonly sendActivationEmailUseCase: SendActivationEmailUseCase;
 
   constructor(emailGateway: IEmailGateway) {
     this.sendRequestResetPasswordEmailUseCase =
       new SendRequestResetPasswordEmailUseCase(emailGateway);
     this.SendResetPasswordEmailUseCase = new SendResetPasswordEmailUseCase(
+      emailGateway,
+    );
+    this.sendActivationEmailUseCase = new SendActivationEmailUseCase(
       emailGateway,
     );
   }
@@ -66,6 +71,27 @@ export class EmailService {
       const result = await this.SendResetPasswordEmailUseCase.execute({
         email: input.email,
         nome: input.usuario.nome,
+      });
+
+      if (result.isLeft()) {
+        return left(result.value);
+      }
+      return right(Result.ok<string>(result.value.getValue()));
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async sendActivationEmail(input: {
+    email: string;
+    usuario: Usuario;
+    link: string;
+  }): Promise<Response> {
+    try {
+      const result = await this.sendActivationEmailUseCase.execute({
+        email: input.email,
+        usuario: input.usuario,
+        link: input.link,
       });
 
       if (result.isLeft()) {
