@@ -12,6 +12,7 @@ export function ensureAuthenticated(): any {
     response: Response,
     next: NextFunction,
   ) => {
+    console.log({ cookies: request.cookies });
     const authToken: string = request.cookies.token;
     try {
       if (authToken != null) {
