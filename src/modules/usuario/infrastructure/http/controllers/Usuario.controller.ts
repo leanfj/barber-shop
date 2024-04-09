@@ -215,6 +215,7 @@ export class UsuarioController extends IBaseController {
         }
         return this.fail(response, result.value.getErrorValue().message);
       }
+
       return this.ok(response, result.value.getValue());
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

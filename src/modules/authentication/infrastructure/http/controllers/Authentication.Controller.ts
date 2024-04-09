@@ -126,6 +126,7 @@ export class AuthenticationController extends IBaseController {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
+        sameSite: 'strict',
       });
 
       response.setHeader('Set-Cookie', serializedToken);
