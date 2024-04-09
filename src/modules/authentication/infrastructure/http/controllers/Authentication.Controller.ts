@@ -1,5 +1,4 @@
 import { type Request, type Response, Router } from 'express';
-import { serialize } from 'cookie';
 import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 import { type LoginInput } from '../../../application/useCase/login.useCase';
@@ -114,22 +113,35 @@ export class AuthenticationController extends IBaseController {
 
       const { token, refreshToken } = result.value.getValue();
 
-      const serializedRefreshToken = serialize('refreshToken', refreshToken, {
+      // const serializedRefreshToken = serialize('refreshToken', refreshToken, {
+      //   httpOnly: true,
+      //   path: '/',
+      //   secure: process.env.NODE_ENV === 'production',
+      //   maxAge: 60 * 60 * 24 * 30,
+      // });
+
+      // const serializedToken = serialize('token', token.token, {
+      //   httpOnly: true,
+      //   path: '/',
+      //   secure: process.env.NODE_ENV === 'production',
+      //   maxAge: 60 * 60 * 24 * 30,
+      // });
+
+      // response.setHeader('Set-Cookie', serializedToken);
+      // response.setHeader('Set-Cookie', serializedRefreshToken);
+
+      response.cookie('token', token.token, {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
       });
-
-      const serializedToken = serialize('token', token.token, {
+      response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
       });
-
-      response.setHeader('Set-Cookie', serializedRefreshToken);
-      response.setHeader('Set-Cookie', serializedToken);
 
       return this.ok(response, { token, refreshToken });
     } catch (err: any) {
@@ -154,7 +166,7 @@ export class AuthenticationController extends IBaseController {
         return this.fail(response, result.value.getErrorValue().message);
       }
 
-      const serialized = serialize('refreshToken', '', {
+      response.cookie('refreshToken', '', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
@@ -162,7 +174,13 @@ export class AuthenticationController extends IBaseController {
         path: '/',
       });
 
-      response.setHeader('Set-Cookie', serialized);
+      response.cookie('token', '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: -1,
+        path: '/',
+      });
 
       return this.ok(response, result.value.getValue());
     } catch (err: any) {

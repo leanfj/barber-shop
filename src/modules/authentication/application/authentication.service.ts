@@ -63,7 +63,7 @@ export class AuthenticationService {
         email: login.email,
       };
 
-      const usuario = await this.usuarioService.getByEmail(
+      const usuario = await this.usuarioService.getActiveByEmail(
         getUsuarioByEmailInput,
       );
 

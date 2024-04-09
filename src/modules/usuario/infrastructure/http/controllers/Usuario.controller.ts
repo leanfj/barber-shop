@@ -56,6 +56,14 @@ export class UsuarioController extends IBaseController {
       },
     );
     this.router.get(
+      `${this.path}/:id/activate/:token`,
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.activate(request, response);
+      },
+    );
+
+    this.router.get(
       `${this.path}/id/:id`,
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       ensureAuthenticated(),
@@ -207,6 +215,25 @@ export class UsuarioController extends IBaseController {
         }
         return this.fail(response, result.value.getErrorValue().message);
       }
+      return this.ok(response, result.value.getValue());
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async activate(request: Request, response: Response): Promise<Response> {
+    try {
+      const body: {
+        usuarioId: string;
+        token: string;
+      } = {
+        usuarioId: request.params.id,
+        token: request.params.token,
+      };
+
+      const result = await this.usuarioService.ativarUsuario(body);
+
       return this.ok(response, result.value.getValue());
     } catch (err: any) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument

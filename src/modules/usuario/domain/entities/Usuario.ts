@@ -53,6 +53,10 @@ export default class Usuario extends Entity<UsuarioProps> {
     this.props.password = newPassword;
   }
 
+  public ativar(): void {
+    this.props.isActive = true;
+  }
+
   static create(props: UsuarioProps, id?: UniqueEntityId): Usuario {
     return new Usuario(props, id);
   }

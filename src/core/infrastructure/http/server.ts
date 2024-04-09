@@ -16,18 +16,22 @@ import PrismaTenantRepository from '../../../modules/tenant/infrastructure/repos
 import { PrismaTokenRepository } from '../../../modules/authentication/infrastructure/repositories/PrismaToken.repository';
 
 void (async () => {
-  const tenantService = new TenantService(new PrismaTenantRepository());
-  const clienteService = new ClienteService(new InMemoryClienteRepository());
-  const usuarioService = new UsuarioService(
-    new PrismaUsuarioRepository(),
-    tenantService,
-  );
   const gmailEmailGateway = new GmailEmailGateway();
+
   const mailhogEmailGateway = new MailHogEmailGateway();
   const emailService = new EmailService(
     process.env.EMAIL_PROVIDER === 'GMAIL'
       ? gmailEmailGateway
       : mailhogEmailGateway,
+  );
+
+  const tenantService = new TenantService(new PrismaTenantRepository());
+  const clienteService = new ClienteService(new InMemoryClienteRepository());
+  const usuarioService = new UsuarioService(
+    new PrismaUsuarioRepository(),
+    new PrismaTokenRepository(),
+    tenantService,
+    emailService,
   );
   const authenticationService = new AuthenticationService(
     usuarioService,
