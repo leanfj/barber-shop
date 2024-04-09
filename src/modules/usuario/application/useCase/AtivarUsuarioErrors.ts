@@ -17,4 +17,16 @@ export namespace AtivarUsuarioErrors {
       );
     }
   }
+
+  export class TokenInvalid extends Result<UseCaseError> {
+    constructor() {
+      super(false, new UseCaseError(`Token inválido.`));
+    }
+  }
+
+  export class TokenNotExists extends Result<UseCaseError> {
+    constructor() {
+      super(false, new UseCaseError(`Token não encontrado.`));
+    }
+  }
 }

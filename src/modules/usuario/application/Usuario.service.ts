@@ -27,6 +27,7 @@ import { SendEmailAtivarUsuarioUseCase } from './useCase/SendEmailAtivarUsuario.
 import type ITokenRepository from '../../../modules/authentication/domain/repositories/ITokenRepository';
 import { GetUsuarioByEmailErrors } from './useCase/GetUsuarioByEmailErrors';
 import { type EmailService } from '../../../modules/email/application/Email.service';
+import { AtivarUsuarioUseCase } from './useCase/AtivarUsuario.useCase';
 
 type Response = Either<AppError.UnexpectedError, Result<Usuario>>;
 
@@ -37,6 +38,7 @@ export class UsuarioService {
   private readonly getUsuarioById: GetUsuarioById;
   private readonly redefinirSenhaUsuarioUseCase: RedefinirSenhaUsuarioUseCase;
   private readonly sendEmailAtivarUsuarioUseCase: SendEmailAtivarUsuarioUseCase;
+  private readonly ativarUsuarioUseCase: AtivarUsuarioUseCase;
 
   private readonly tenantService: TenantService;
   private readonly emailService: EmailService;
@@ -58,6 +60,10 @@ export class UsuarioService {
       usuarioRepository,
     );
     this.sendEmailAtivarUsuarioUseCase = new SendEmailAtivarUsuarioUseCase(
+      usuarioRepository,
+      tokenRepository,
+    );
+    this.ativarUsuarioUseCase = new AtivarUsuarioUseCase(
       usuarioRepository,
       tokenRepository,
     );
@@ -198,6 +204,24 @@ export class UsuarioService {
       }
 
       return right(Result.ok<Usuario>(usuario.value.getValue()));
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
+
+  public async ativarUsuario(input: {
+    usuarioId: string;
+    token: string;
+  }): Promise<Response> {
+    try {
+      const result = await this.ativarUsuarioUseCase.execute(input);
+
+      if (result.isLeft()) {
+        return left(result.value);
+      }
+
+      const usuario = result.value.getValue();
+      return right(Result.ok<Usuario>(usuario));
     } catch (error) {
       return left(new AppError.UnexpectedError(error));
     }

@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import Usuario from '../../domain/entities/Usuario';
 import {
   left,
@@ -8,11 +9,12 @@ import {
 import { AppError } from '../../../../core/application/AppError';
 import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
 import type IUsuarioRepository from '../../domain/repositories/IUsuarioRepository';
+import type ITokenRepository from '../../../../modules/authentication/domain/repositories/ITokenRepository';
 import { AtivarUsuarioErrors } from './AtivarUsuarioErrors';
 
 export interface AtivarUsuarioInput {
-  ativarToken: string;
   usuarioId: string;
+  token: string;
 }
 
 export type AtivarUsuarioOutput = Either<
@@ -20,10 +22,13 @@ export type AtivarUsuarioOutput = Either<
   Result<Usuario>
 >;
 
-export class AtivarUsuario
+export class AtivarUsuarioUseCase
   implements IUseCase<AtivarUsuarioInput, Promise<AtivarUsuarioOutput>>
 {
-  constructor(private readonly usuarioRepository: IUsuarioRepository) {}
+  constructor(
+    private readonly usuarioRepository: IUsuarioRepository,
+    private readonly tokenRepository: ITokenRepository,
+  ) {}
 
   async execute(input: AtivarUsuarioInput): Promise<AtivarUsuarioOutput> {
     try {
@@ -34,6 +39,25 @@ export class AtivarUsuario
       if (usuarioExists.isLeft()) {
         return left(new AtivarUsuarioErrors.UsuarioNotExists());
       }
+
+      const tokenExits = await this.tokenRepository.findByUsuarioId(
+        usuarioExists.value.getValue().id.toValue(),
+      );
+
+      if (tokenExits.isLeft()) {
+        return left(new AtivarUsuarioErrors.TokenNotExists());
+      }
+
+      const chekPassword = await bcrypt.compare(
+        input.token,
+        tokenExits.value.getValue().token,
+      );
+
+      if (!chekPassword) {
+        return left(new AtivarUsuarioErrors.TokenInvalid());
+      }
+
+      await this.tokenRepository.delete(tokenExits.value.getValue());
 
       const usuario = Usuario.create(
         {
