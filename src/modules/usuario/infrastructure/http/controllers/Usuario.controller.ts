@@ -1,4 +1,3 @@
-// import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 import { type UsuarioService } from '../../../../../modules/usuario/application/Usuario.service';
 import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
 import { type Request, type Response, Router } from 'express';

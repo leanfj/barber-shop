@@ -13,19 +13,22 @@ export function ensureAuthenticated(): any {
     next: NextFunction,
   ) => {
     const authToken = request.headers.authorization;
-    const authCookieToken: string = request.cookies.token;
+    const authCookieToken = request.cookies.token;
     console.log({ authToken, authCookieToken });
     try {
-      if (authToken != null) {
+      if (authCookieToken != null) {
         const secret = process.env.JWT_SECRET;
 
         if (secret == null) {
           throw new Error('Erro interno do servidor.');
         }
 
-        const [, token] = authToken.split(' ');
+        // const [, token] = authToken.split(' ');
 
-        const decoded = verify(token, secret) as unknown as IDataStoredInToken;
+        const decoded = verify(
+          authCookieToken as string,
+          secret,
+        ) as unknown as IDataStoredInToken;
         request.usuarioId = decoded.id;
       } else {
         next(new AuthenticationTokenMissingException());
