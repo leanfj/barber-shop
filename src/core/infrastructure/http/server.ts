@@ -20,9 +20,7 @@ void (async () => {
 
   const mailhogEmailGateway = new MailHogEmailGateway();
   const emailService = new EmailService(
-    process.env.EMAIL_PROVIDER === 'GMAIL'
-      ? gmailEmailGateway
-      : mailhogEmailGateway,
+    process.env.EMAIL_PROVIDER ? gmailEmailGateway : mailhogEmailGateway,
   );
 
   const tenantService = new TenantService(new PrismaTenantRepository());
