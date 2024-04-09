@@ -138,14 +138,14 @@ export class AuthenticationController extends IBaseController {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'strict',
+        sameSite: 'none',
       });
       response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'strict',
+        sameSite: 'none',
       });
 
       return this.ok(response, { token, refreshToken });

@@ -51,6 +51,7 @@ export default class App {
         origin: [
           'http://localhost:3000',
           'https://barber-shop-web-nine.vercel.app',
+          'https://barber-shop-web-nine.vercel.app/',
         ],
         credentials: true,
         methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
