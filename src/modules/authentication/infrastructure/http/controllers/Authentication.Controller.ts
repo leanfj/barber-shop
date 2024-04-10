@@ -1,6 +1,5 @@
 import { type Request, type Response, Router } from 'express';
 import { IBaseController } from '../../../../../core/infrastructure/http/IBaseController';
-import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 import { type LoginInput } from '../../../application/useCase/login.useCase';
 import { LoginErrors } from '../../../application/useCase/loginErrors';
 import { type AuthenticationService } from '../../../application/authentication.service';
@@ -51,8 +50,7 @@ export class AuthenticationController extends IBaseController {
 
     this.router.patch(
       `${this.path}/changePassword`,
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      ensureAuthenticated(),
+
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.changePassword(request, response);
@@ -138,14 +136,14 @@ export class AuthenticationController extends IBaseController {
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'none',
+        sameSite: 'lax',
       });
       response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         path: '/',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'none',
+        sameSite: 'lax',
       });
 
       return this.ok(response, { token, refreshToken });
@@ -254,8 +252,8 @@ export class AuthenticationController extends IBaseController {
     response: Response,
   ): Promise<Response> {
     const usuarioId = request.query.usuarioId as string;
-    const password = request.body.password as string;
     const resetPasswordToken = request.query.resetPasswordToken as string;
+    const password = request.body.password as string;
 
     try {
       const result = await this.authenticationService.resetPassword(

@@ -54,7 +54,7 @@ export default class App {
           'https://barber-shop-web-nine.vercel.app/',
         ],
         credentials: true,
-        methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD'],
+        methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD', 'PATCH', 'DELETE'],
       }),
     );
     this.app.use(cookieParser());

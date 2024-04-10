@@ -23,8 +23,6 @@ export function ensureAuthenticated(): any {
           throw new Error('Erro interno do servidor.');
         }
 
-        // const [, token] = authToken.split(' ');
-
         const decoded = verify(
           authCookieToken as string,
           secret,
