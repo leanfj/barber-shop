@@ -125,7 +125,7 @@ export class AuthenticationController extends IBaseController {
       //   path: '/',
       //   secure: EnvConstants.NODE_ENV === 'production',
       //   maxAge: 60 * 60 * 24 * 30,
-      //   sameSite: 'lax',
+      //   sameSite: 'none',
       // });
 
       // response
@@ -137,14 +137,14 @@ export class AuthenticationController extends IBaseController {
         path: '/',
         secure: EnvConstants.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'lax',
+        sameSite: 'none',
       });
       response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         path: '/',
         secure: EnvConstants.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'lax',
+        sameSite: 'none',
       });
 
       return this.ok(response, { token, refreshToken });
@@ -173,7 +173,7 @@ export class AuthenticationController extends IBaseController {
       response.cookie('refreshToken', '', {
         httpOnly: true,
         secure: EnvConstants.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: -1,
         path: '/',
       });
@@ -181,7 +181,7 @@ export class AuthenticationController extends IBaseController {
       response.cookie('token', '', {
         httpOnly: true,
         secure: EnvConstants.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'none',
         maxAge: -1,
         path: '/',
       });
