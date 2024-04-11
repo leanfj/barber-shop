@@ -1,5 +1,6 @@
 import { type Secret, sign } from 'jsonwebtoken';
 import { ValueObject } from './ValueObjects';
+import { EnvConstants } from '../../../env/envContants';
 
 interface RefreshTokenProps {
   value: string;
@@ -33,9 +34,7 @@ export default class RefreshTokenVO extends ValueObject<RefreshTokenProps> {
     tenantId: string;
     expiresIn?: string;
   }): Promise<string> {
-    const { JWT_SECRET } = process.env;
-
-    const tokenJWT = sign(data, JWT_SECRET as Secret, {
+    const tokenJWT = sign(data, EnvConstants.JWT_SECRET as Secret, {
       expiresIn: data.expiresIn ?? '30d',
     });
 

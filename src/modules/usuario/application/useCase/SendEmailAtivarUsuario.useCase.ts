@@ -15,6 +15,7 @@ import { randomBytes } from 'crypto';
 import { Token } from '../../../authentication/domain/entities/Token';
 import DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
 import type ITokenRepository from '../../../authentication/domain/repositories/ITokenRepository';
+import { EnvConstants } from '../../../../env/envContants';
 
 export interface AtivarUsuarioInput {
   email: string;
@@ -80,7 +81,7 @@ export class SendEmailAtivarUsuarioUseCase
 
       await this.tokenRepository.save(token);
 
-      const client = process.env.CLIENT_URL;
+      const client = EnvConstants.CLIENT_URL;
 
       const link = `${client}/#/activation?token=${activationToken}&usuarioId=${usuario.id.toString()}`;
 

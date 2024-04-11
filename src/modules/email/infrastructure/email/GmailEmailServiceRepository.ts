@@ -11,6 +11,7 @@ import {
   left,
 } from '../../../../core/logic/Result';
 import { type IEmailGateway } from '../../../../modules/email/domain/gateway/IEmail.gateway';
+import { EnvConstants } from '../../../../env/envContants';
 
 type Response = Either<AppError.UnexpectedError, Result<any>>;
 
@@ -25,11 +26,11 @@ export class GmailEmailGateway implements IEmailGateway {
   ): Promise<Response> {
     try {
       const transporter = createTransport({
-        host: process.env.EMAIL_HOST,
+        host: EnvConstants.EMAIL_HOST,
         port: 465,
         auth: {
-          user: process.env.EMAIL_USERNAME,
-          pass: process.env.EMAIL_PASSWORD,
+          user: EnvConstants.EMAIL_USERNAME,
+          pass: EnvConstants.EMAIL_PASSWORD,
         },
       });
 
@@ -37,7 +38,7 @@ export class GmailEmailGateway implements IEmailGateway {
       const compiledTemplate = compile(source);
       const options = (): SendMailOptions => {
         return {
-          from: process.env.FROM_EMAIL,
+          from: EnvConstants.FROM_EMAIL,
           to: email,
           subject,
           html: compiledTemplate(payload),

@@ -4,6 +4,7 @@ import { type LoginInput } from '../../../application/useCase/login.useCase';
 import { LoginErrors } from '../../../application/useCase/loginErrors';
 import { type AuthenticationService } from '../../../application/authentication.service';
 import { RequestRefreshTokenErrors } from '../../../../../modules/authentication/application/useCase/requestRefreshTokenErrors';
+import { EnvConstants } from '../../../../../env/envContants';
 // import { serialize } from 'cookie';
 
 export class AuthenticationController extends IBaseController {
@@ -115,14 +116,14 @@ export class AuthenticationController extends IBaseController {
       // const serializedRefreshToken = serialize('refreshToken', refreshToken, {
       //   httpOnly: true,
       //   path: '/',
-      //   secure: process.env.NODE_ENV === 'production',
+      //   secure: EnvConstants.NODE_ENV === 'production',
       //   maxAge: 60 * 60 * 24 * 30,
       // });
 
       // const serializedToken = serialize('token', token.token, {
       //   httpOnly: true,
       //   path: '/',
-      //   secure: process.env.NODE_ENV === 'production',
+      //   secure: EnvConstants.NODE_ENV === 'production',
       //   maxAge: 60 * 60 * 24 * 30,
       //   sameSite: 'strict',
       // });
@@ -134,16 +135,16 @@ export class AuthenticationController extends IBaseController {
       response.cookie('token', token.token, {
         httpOnly: true,
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: EnvConstants.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'none',
+        sameSite: 'strict',
       });
       response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: EnvConstants.NODE_ENV === 'production',
         maxAge: 60 * 60 * 24 * 30,
-        sameSite: 'none',
+        sameSite: 'strict',
       });
 
       return this.ok(response, { token, refreshToken });
@@ -171,16 +172,16 @@ export class AuthenticationController extends IBaseController {
 
       response.cookie('refreshToken', '', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
+        secure: EnvConstants.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: -1,
         path: '/',
       });
 
       response.cookie('token', '', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
+        secure: EnvConstants.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: -1,
         path: '/',
       });

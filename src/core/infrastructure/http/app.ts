@@ -7,6 +7,7 @@ import { errorMiddleware } from './middlewares/error.middleware';
 import { loggerMiddleware } from './middlewares/logger.middleware';
 import helmet from 'helmet';
 import { type IBaseController } from './IBaseController';
+import { EnvConstants } from '../../../env/envContants';
 
 export default class App {
   public app: express.Application;
@@ -14,7 +15,7 @@ export default class App {
 
   constructor(controllers: IBaseController[]) {
     this.app = express();
-    this.port = this.normalizePort(process.env.PORT ?? '3333');
+    this.port = EnvConstants.PORT;
     this.initializeHelmet();
     this.initializeMiddlewares();
     this.initializeLogger();

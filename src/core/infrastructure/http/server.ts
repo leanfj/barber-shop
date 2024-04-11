@@ -14,13 +14,14 @@ import { MailHogEmailGateway } from '../../../modules/email/infrastructure/email
 import PrismaUsuarioRepository from '../../../modules/usuario/infrastructure/repositories/PrismaUsuario.repository';
 import PrismaTenantRepository from '../../../modules/tenant/infrastructure/repositories/PrismaTenant.repository';
 import { PrismaTokenRepository } from '../../../modules/authentication/infrastructure/repositories/PrismaToken.repository';
+import { EnvConstants } from '../../../env/envContants';
 
 void (async () => {
   const gmailEmailGateway = new GmailEmailGateway();
 
   const mailhogEmailGateway = new MailHogEmailGateway();
   const emailService = new EmailService(
-    process.env.EMAIL_PROVIDER ? gmailEmailGateway : mailhogEmailGateway,
+    EnvConstants.EMAIL_PROVIDER ? gmailEmailGateway : mailhogEmailGateway,
   );
 
   const tenantService = new TenantService(new PrismaTenantRepository());

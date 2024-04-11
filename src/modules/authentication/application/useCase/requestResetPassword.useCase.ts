@@ -12,6 +12,7 @@ import { Token } from '../../domain/entities/Token';
 import type ITokenRepository from '../../domain/repositories/ITokenRepository';
 import type Usuario from '../../../../modules/usuario/domain/entities/Usuario';
 import DataExpiracao from '../../../../core/domain/valueObjects/DataExpiracao';
+import { EnvConstants } from '../../../../env/envContants';
 
 type Response = Either<
   AppError.UnexpectedError,
@@ -54,9 +55,7 @@ export class RequestResetPasswordUseCase
 
       await this.tokenRepository.save(token);
 
-      const { CLIENT_URL } = process.env;
-
-      const link = `${CLIENT_URL}/#/change-password?token=${resetPasswordToken}&usuarioId=${usuario.id.toString()}`;
+      const link = `${EnvConstants.CLIENT_URL}/#/change-password?token=${resetPasswordToken}&usuarioId=${usuario.id.toString()}`;
 
       return right(
         Result.ok<{

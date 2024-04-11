@@ -5,6 +5,7 @@ import { type IRequestWithUsuarioId } from '../IRequestWithUsuarioId';
 import { AuthenticationTokenMissingException } from '../../../../modules/authentication/infrastructure/http/exceptions/authenticationTokenMissing.excepition';
 import { WrongAuthenticationTokenException } from '../../../../modules/authentication/infrastructure/http/exceptions/wrongAuthenticationToken.exception';
 import { TimeoutAuthenticationTokenException } from '../../../../modules/authentication/infrastructure/http/exceptions/timeoutAuthenticationToken.exception';
+import { EnvConstants } from '../../../../env/envContants';
 
 export function ensureAuthenticated(): any {
   return (
@@ -17,7 +18,7 @@ export function ensureAuthenticated(): any {
     console.log({ authToken, authCookieToken });
     try {
       if (authCookieToken != null) {
-        const secret = process.env.JWT_SECRET;
+        const secret = EnvConstants.JWT_SECRET;
 
         if (secret == null) {
           throw new Error('Erro interno do servidor.');
@@ -27,6 +28,7 @@ export function ensureAuthenticated(): any {
           authCookieToken as string,
           secret,
         ) as unknown as IDataStoredInToken;
+
         request.usuarioId = decoded.id;
       } else {
         next(new AuthenticationTokenMissingException());
