@@ -7,5 +7,5 @@ type Response = Either<AppError.UnexpectedError, Result<Token>>;
 
 export default interface ITokenRepository extends IRepository<Token, Response> {
   findByUsuarioId: (id: string) => Promise<Response>;
-  findByToken: (token: string) => Promise<Response>;
+  findByToken: (token: string, usuarioId: string) => Promise<Response>;
 }

@@ -8,4 +8,5 @@ type Response = Either<AppError.UnexpectedError, Result<Tenant>>;
 export default interface ITenantRepository
   extends IRepository<Tenant, Response> {
   getByNome: (nome: string) => Promise<Response>;
+  findByUsuarioId: (usuarioId: string) => Promise<Response>;
 }

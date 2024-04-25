@@ -14,7 +14,7 @@ import Slug from '../../../../core/domain/valueObjects/Slug';
 
 type Response = Either<AppError.UnexpectedError, Result<Tenant>>;
 export default class PrismaTenantRepository implements ITenantRepository {
-  async save(tenant: Tenant): Promise<Tenant> {
+  async save(tenant: Tenant): Promise<Response> {
     const tenantData = await prisma.tenant.create({
       data: {
         id: tenant.id.toString(),
@@ -37,7 +37,7 @@ export default class PrismaTenantRepository implements ITenantRepository {
       new UniqueEntityId(tenantData.id),
     );
 
-    return tenantToApplication;
+    return right(Result.ok<Tenant>(tenantToApplication));
   }
 
   async exists(t: any): Promise<boolean> {
@@ -81,6 +81,35 @@ export default class PrismaTenantRepository implements ITenantRepository {
     const tenantData = await prisma.tenant.findFirst({
       where: {
         nome,
+      },
+    });
+
+    if (!tenantData) {
+      return left(new TenantRepositoryErrors.TenantNotExists());
+    }
+
+    const tenantToApplication = Tenant.create(
+      {
+        nome: tenantData.nome,
+        isAtivo: tenantData.isAtivo,
+        dataAtualizacao: tenantData.dataAtualizacao,
+        dataCadastro: tenantData.dataCadastro,
+        slug: Slug.setValue(tenantData.nome),
+      },
+      new UniqueEntityId(tenantData.id),
+    );
+
+    return right(Result.ok<Tenant>(tenantToApplication));
+  }
+
+  async findByUsuarioId(usuarioId: string): Promise<Response> {
+    const tenantData = await prisma.tenant.findFirst({
+      where: {
+        usuarios: {
+          some: {
+            id: usuarioId,
+          },
+        },
       },
     });
 

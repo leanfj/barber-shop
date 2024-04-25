@@ -143,11 +143,12 @@ export class PrismaTokenRepository implements ITokenRepository {
     }
   }
 
-  async findByToken(token: string): Promise<Response> {
+  async findByToken(token: string, usuarioId: string): Promise<Response> {
     try {
       const tokenData = await prisma.token.findFirst({
         where: {
           token,
+          usuarioId,
         },
       });
 

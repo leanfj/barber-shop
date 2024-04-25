@@ -238,21 +238,21 @@ export class AuthenticationService {
         return left(new LoginErrors.UserNotFound(email));
       }
 
-      const requestRefreshPasswordOrError =
+      const requestRefreshTokenOrError =
         await this.requestRefreshTokenUseCase.execute({
           token,
           usuario: usuario.value.getValue(),
         });
 
-      if (requestRefreshPasswordOrError.isLeft()) {
-        return left(requestRefreshPasswordOrError.value);
+      if (requestRefreshTokenOrError.isLeft()) {
+        return left(requestRefreshTokenOrError.value);
       }
 
       return right(
         Result.ok<{
           token: string;
         }>({
-          token: requestRefreshPasswordOrError.value.getValue().token,
+          token: requestRefreshTokenOrError.value.getValue().token,
         }),
       );
     } catch (error) {

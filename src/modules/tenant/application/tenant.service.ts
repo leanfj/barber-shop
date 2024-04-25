@@ -28,4 +28,17 @@ export class TenantService {
       return left(new AppError.UnexpectedError(error));
     }
   }
+
+  public async getTenantByUsuarioId(usuarioId: string): Promise<Response> {
+    try {
+      const result = await this.tenantRepository.findByUsuarioId(usuarioId);
+      if (result.isLeft()) {
+        return left(result.value);
+      } else {
+        return right(Result.ok<Tenant>(result.value.getValue()));
+      }
+    } catch (error) {
+      return left(new AppError.UnexpectedError(error));
+    }
+  }
 }

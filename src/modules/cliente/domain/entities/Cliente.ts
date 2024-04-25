@@ -1,23 +1,23 @@
 import Entity from '../../../../core/domain/entities/Entity';
-import type CPF from '../../../../core/domain/valueObjects/CPF';
-import type Email from '../../../../core/domain/valueObjects/Email';
+import CPF from '../../../../core/domain/valueObjects/CPF';
+import Email from '../../../../core/domain/valueObjects/Email';
 import type UniqueEntityId from '../../../../core/domain/entities/UniqueEntityId';
 
 interface ClienteProps {
   id?: string;
   tenantId: string;
   nome: string;
-  email: Email;
-  genero: string;
-  telefone: string;
-  endereco: string;
-  cidade: string;
-  estado: string;
-  cep: string;
-  cpf: CPF;
+  email: Email | string;
+  genero: string | undefined;
+  telefone: string | undefined;
+  endereco: string | undefined;
+  cidade: string | undefined;
+  estado: string | undefined;
+  cep: string | undefined;
+  cpf: CPF | string;
+  dataNascimento?: Date;
   dataCadastro?: Date;
   dataAtualizacao?: Date;
-  dataNascimento?: Date;
 }
 
 export default class Cliente extends Entity<ClienteProps> {
@@ -38,35 +38,39 @@ export default class Cliente extends Entity<ClienteProps> {
   }
 
   get email(): string {
-    return this.props.email.getValue();
+    return this.props.email instanceof Email
+      ? this.props.email.getValue()
+      : this.props.email;
   }
 
-  get genero(): string {
+  get genero(): string | undefined {
     return this.props.genero;
   }
 
-  get telefone(): string {
+  get telefone(): string | undefined {
     return this.props.telefone;
   }
 
-  get endereco(): string {
+  get endereco(): string | undefined {
     return this.props.endereco;
   }
 
-  get cidade(): string {
+  get cidade(): string | undefined {
     return this.props.cidade;
   }
 
-  get estado(): string {
+  get estado(): string | undefined {
     return this.props.estado;
   }
 
-  get cep(): string {
+  get cep(): string | undefined {
     return this.props.cep;
   }
 
   get cpf(): string {
-    return this.props.cpf.getValue();
+    return this.props.cpf instanceof CPF
+      ? this.props.cpf?.getValue()
+      : this.props.cpf;
   }
 
   get dataCadastro(): Date | undefined {

@@ -5,6 +5,7 @@ import { LoginErrors } from '../../../application/useCase/loginErrors';
 import { type AuthenticationService } from '../../../application/authentication.service';
 import { RequestRefreshTokenErrors } from '../../../../../modules/authentication/application/useCase/requestRefreshTokenErrors';
 import { EnvConstants } from '../../../../../env/envContants';
+import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
 // import { serialize } from 'cookie';
 
 export class AuthenticationController extends IBaseController {
@@ -27,6 +28,8 @@ export class AuthenticationController extends IBaseController {
 
     this.router.post(
       `${this.path}/logout`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      ensureAuthenticated(),
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
         return await this.logout(request, response);
@@ -116,14 +119,14 @@ export class AuthenticationController extends IBaseController {
       // const serializedRefreshToken = serialize('refreshToken', refreshToken, {
       //   httpOnly: true,
       //   path: '/',
-      //   secure: EnvConstants.NODE_ENV === 'production',
+      //   secure: true,
       //   maxAge: 60 * 60 * 24 * 30,
       // });
 
       // const serializedToken = serialize('token', token.token, {
       //   httpOnly: true,
       //   path: '/',
-      //   secure: EnvConstants.NODE_ENV === 'production',
+      //   secure: true,
       //   maxAge: 60 * 60 * 24 * 30,
       //   sameSite: 'none',
       // });
@@ -135,16 +138,18 @@ export class AuthenticationController extends IBaseController {
       response.cookie('token', token.token, {
         httpOnly: true,
         path: '/',
-        secure: EnvConstants.NODE_ENV === 'production',
+        secure: true,
         maxAge: 60 * 60 * 24 * 30,
         sameSite: 'none',
+        domain: EnvConstants.CLIENT_DOMAIN,
       });
       response.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         path: '/',
-        secure: EnvConstants.NODE_ENV === 'production',
+        secure: true,
         maxAge: 60 * 60 * 24 * 30,
         sameSite: 'none',
+        domain: EnvConstants.CLIENT_DOMAIN,
       });
 
       return this.ok(response, { token, refreshToken });
@@ -172,18 +177,20 @@ export class AuthenticationController extends IBaseController {
 
       response.cookie('refreshToken', '', {
         httpOnly: true,
-        secure: EnvConstants.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: -1,
         path: '/',
+        domain: EnvConstants.CLIENT_DOMAIN,
       });
 
       response.cookie('token', '', {
         httpOnly: true,
-        secure: EnvConstants.NODE_ENV === 'production',
+        secure: true,
         sameSite: 'none',
         maxAge: -1,
         path: '/',
+        domain: EnvConstants.CLIENT_DOMAIN,
       });
 
       return this.ok(response, result.value.getValue());

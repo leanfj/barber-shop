@@ -34,6 +34,9 @@ export class EnvConstants {
   public static readonly CLIENT_URL: string =
     process.env.CLIENT_URL ?? 'http://localhost:3000';
 
+  public static readonly CLIENT_DOMAIN: string =
+    process.env.CLIENT_DOMAIN ?? 'localhost';
+
   public static readonly FROM_EMAIL: string =
     process.env.FROM_EMAIL ?? 'localhost@email.com';
 

@@ -9,10 +9,10 @@ import {
 } from '../../../../core/logic/Result';
 import { Token } from '../../domain/entities/Token';
 import type ITokenRepository from '../../domain/repositories/ITokenRepository';
-import type Usuario from '../../../usuario/domain/entities/Usuario';
 import { getUnixTime, isAfter } from 'date-fns';
 import { RequestRefreshTokenErrors } from './requestRefreshTokenErrors';
 import TokenVO from '../../../../core/domain/valueObjects/TokenVO';
+import type Usuario from 'modules/usuario/domain/entities/Usuario';
 
 type Response = Either<
   AppError.UnexpectedError,
@@ -35,7 +35,10 @@ export class RequestRefreshTokenUseCase
 
   async execute(input: { token: string; usuario: Usuario }): Promise<Response> {
     try {
-      const tokenData = await this.tokenRepository.findByToken(input.token);
+      const tokenData = await this.tokenRepository.findByToken(
+        input.token,
+        input.usuario.id.toValue(),
+      );
 
       if (tokenData.isLeft()) {
         return left(new RequestRefreshTokenErrors.TokenInvalid());

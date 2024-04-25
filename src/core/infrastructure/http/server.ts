@@ -1,4 +1,3 @@
-import InMemoryClienteRepository from '../../../modules/cliente/infrastructure/repositories/InMemoryCliente';
 import { ClienteService } from '../../../modules/cliente/application/Cliente.service';
 import { UsuarioService } from '../../../modules/usuario/application/Usuario.service';
 import { ClienteController } from '../../../modules/cliente/infrastructure/http/controllers/Cliente.controller';
@@ -15,6 +14,7 @@ import PrismaUsuarioRepository from '../../../modules/usuario/infrastructure/rep
 import PrismaTenantRepository from '../../../modules/tenant/infrastructure/repositories/PrismaTenant.repository';
 import { PrismaTokenRepository } from '../../../modules/authentication/infrastructure/repositories/PrismaToken.repository';
 import { EnvConstants } from '../../../env/envContants';
+import PrismaClienteRepository from '../../../modules/cliente/infrastructure/repositories/PrismaCliente.repository';
 
 void (async () => {
   const gmailEmailGateway = new GmailEmailGateway();
@@ -25,7 +25,10 @@ void (async () => {
   );
 
   const tenantService = new TenantService(new PrismaTenantRepository());
-  const clienteService = new ClienteService(new InMemoryClienteRepository());
+  const clienteService = new ClienteService(
+    new PrismaClienteRepository(),
+    tenantService,
+  );
   const usuarioService = new UsuarioService(
     new PrismaUsuarioRepository(),
     new PrismaTokenRepository(),

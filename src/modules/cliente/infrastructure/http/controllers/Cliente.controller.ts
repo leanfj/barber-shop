@@ -5,6 +5,8 @@ import { IBaseController } from '../../../../../core/infrastructure/http/IBaseCo
 import { type Request, type Response, Router } from 'express';
 import { type CadastrarClienteInput } from 'modules/cliente/application/useCase/CadastrarCliente';
 import { ensureAuthenticated } from '../../../../../core/infrastructure/http/middlewares/ensureAuthenticated.middleware';
+import { ListarTodosClientesErrors } from '../../../../../modules/cliente/application/useCase/ListarTodosClientesUseCase.errors';
+import { type IRequestWithUsuarioId } from '../../../../../core/infrastructure/http/IRequestWithUsuarioId';
 
 export class ClienteController extends IBaseController {
   public path = '/clientes';
@@ -22,17 +24,18 @@ export class ClienteController extends IBaseController {
       ensureAuthenticated(),
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       async (request: Request, response: Response) => {
-        return await this.create(request, response);
+        return await this.create(request as IRequestWithUsuarioId, response);
       },
     );
-    // this.router.get(
-    //   `${this.path}`,
-    //   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-    // ensureAuthenticated(),
-    //   (request: Request, response: Response, next: NextFunction) => {
-    //     this.getAll(request, response, next);
-    //   },
-    // );
+    this.router.get(
+      `${this.path}`,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      ensureAuthenticated(),
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (request: Request, response: Response) => {
+        return await this.getAll(request, response);
+      },
+    );
 
     // this.router.patch(
     //   `${this.path}/:id`,
@@ -60,27 +63,39 @@ export class ClienteController extends IBaseController {
   //     throw new Error('Method not implemented.');
   //   }
 
-  //   async getAll(req: Request, res: Response, next: NextFunction) {
-  //     try {
-  //       const result = await this.clienteService.getAll();
-  //       if (result.isLeft()) {
-  //         if (result.value instanceof GetAllClienteErrors.ClienteListEmpty) {
-  //           return this.notFound(res, result.value.getErrorValue().message);
-  //         }
-  //         return this.fail(res, result.value.getErrorValue().message);
-  //       } else {
-  //         const clienteList = result.value.getValue();
-  //         return this.ok(res, clienteList);
-  //       }
-  //     } catch (err) {
-  //       return this.fail(res, err);
-  //     }
-  //   }
+  async getAll(request: Request, response: Response): Promise<Response> {
+    try {
+      const { skip = '', take = '' } = request.query;
 
-  async create(request: Request, response: Response): Promise<Response> {
+      const result = await this.clienteService.getAll({
+        skip: (skip as string) ?? '',
+        take: (take as string) ?? '',
+      });
+      if (result.isLeft()) {
+        if (
+          result.value instanceof ListarTodosClientesErrors.ClienteListEmpty
+        ) {
+          return this.notFound(response, result.value.getErrorValue().message);
+        }
+        return this.fail(response, result.value.getErrorValue().message);
+      } else {
+        const clienteList = result.value.getValue();
+        return this.ok(response, clienteList);
+      }
+    } catch (err: any) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      return this.fail(response, err);
+    }
+  }
+
+  async create(
+    request: IRequestWithUsuarioId,
+    response: Response,
+  ): Promise<Response> {
     try {
       const body: CadastrarClienteInput = request.body;
-      const result = await this.clienteService.create(body);
+
+      const result = await this.clienteService.create(body, request.usuarioId);
 
       if (result.isLeft()) {
         if (

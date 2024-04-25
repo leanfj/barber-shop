@@ -2,16 +2,17 @@ import { ZodError } from 'zod';
 import { CadastartClienteErrors } from './CadastrarCliente.errors';
 import { AppError } from '../../../../core/application/AppError';
 import { type IUseCase } from '../../../../core/application/useCase/IUseCase';
-import CPF from '../../../../core/domain/valueObjects/CPF';
-import Email from '../../../../core/domain/valueObjects/Email';
 import {
   type Either,
   Result,
   left,
   right,
 } from '../../../../core/logic/Result';
-import Cliente from '../../../../modules/cliente/domain/entities/Cliente';
 import type IClienteRepository from '../../../../modules/cliente/domain/repositories/IClienteRepository';
+import type Tenant from '../../../../modules/tenant/domain/entities/Tenant';
+import ClienteToPersistenceDTO from '../dto/ClienteToPersistence.dto';
+import type Cliente from '../../../../modules/cliente/domain/entities/Cliente';
+import type ClienteToResponseDTO from '../dto/ClienteToResponse.dto';
 
 export interface CadastrarClienteInput {
   tenantId: string;
@@ -31,45 +32,58 @@ export interface CadastrarClienteInput {
 
 export type CadastrarClienteOutput = Either<
   AppError.UnexpectedError,
-  Result<Cliente>
+  Result<Cliente | ClienteToResponseDTO>
 >;
 
 export default class CadastrarCliente
-  implements IUseCase<CadastrarClienteInput, Promise<CadastrarClienteOutput>>
+  implements
+    IUseCase<
+      { cadastrarClienteInput: CadastrarClienteInput; tenant: Tenant },
+      Promise<CadastrarClienteOutput>
+    >
 {
   constructor(private readonly clienteRepository: IClienteRepository) {}
 
-  async execute(input: CadastrarClienteInput): Promise<CadastrarClienteOutput> {
+  async execute(input: {
+    cadastrarClienteInput: CadastrarClienteInput;
+    tenant: Tenant;
+  }): Promise<Either<AppError.UnexpectedError, Result<ClienteToResponseDTO>>> {
     try {
       const existingCliente = await this.clienteRepository.findByNome(
-        input.nome,
+        input.cadastrarClienteInput.nome,
       );
 
       if (!existingCliente.isLeft()) {
         return left(
-          new CadastartClienteErrors.ClienteAlreadyExists(input.nome),
+          new CadastartClienteErrors.ClienteAlreadyExists(
+            input.cadastrarClienteInput.nome,
+          ),
         );
       }
 
-      const cliente = Cliente.create({
-        tenantId: input.tenantId, // TODO - Pegar o valor de tenant
-        nome: input.nome,
-        email: Email.setValue(input.email),
-        telefone: input.telefone,
-        cpf: CPF.setValue(input.cpf),
-        dataNascimento: input.dataNascimento,
-        endereco: input.endereco,
-        cidade: input.cidade,
-        estado: input.estado,
-        cep: input.cep,
-        genero: input.genero,
-        dataCadastro: input.dataCadastro,
-        dataAtualizacao: input.dataAtualizacao,
-      });
+      const cliente = await this.clienteRepository.save(
+        ClienteToPersistenceDTO.create({
+          tenantId: input.tenant.id.toValue(),
+          nome: input.cadastrarClienteInput.nome,
+          email: input.cadastrarClienteInput.email,
+          cpf: input.cadastrarClienteInput.cpf,
+          telefone: input.cadastrarClienteInput.telefone,
+          genero: input.cadastrarClienteInput.genero,
+          endereco: input.cadastrarClienteInput.endereco,
+          cidade: input.cadastrarClienteInput.cidade,
+          estado: input.cadastrarClienteInput.estado,
+          cep: input.cadastrarClienteInput.cep,
+          dataNascimento: input.cadastrarClienteInput.dataNascimento,
+          dataCadastro: input.cadastrarClienteInput.dataCadastro,
+          dataAtualizacao: input.cadastrarClienteInput.dataAtualizacao,
+        }),
+      );
 
-      await this.clienteRepository.save(cliente);
+      if (cliente.isLeft()) {
+        return left(cliente.value);
+      }
 
-      return right(Result.ok<Cliente>(cliente));
+      return right(Result.ok<ClienteToResponseDTO>(cliente.value.getValue()));
     } catch (error) {
       if (error instanceof ZodError) {
         return left(new CadastartClienteErrors.InvalidData(error));

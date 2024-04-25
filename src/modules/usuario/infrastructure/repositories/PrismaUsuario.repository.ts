@@ -40,7 +40,7 @@ export default class PrismaUsuarioRepository implements IUsuarioRepository {
     return right(Result.ok<Usuario>(usuarioApplication));
   }
 
-  async save(usuario: Usuario): Promise<Usuario> {
+  async save(usuario: Usuario): Promise<Response> {
     await prisma.user.create({
       data: {
         id: usuario.id.toString(),
@@ -54,7 +54,7 @@ export default class PrismaUsuarioRepository implements IUsuarioRepository {
       },
     });
 
-    return usuario;
+    return right(Result.ok<Usuario>(usuario));
   }
 
   async exists(t: any): Promise<boolean> {

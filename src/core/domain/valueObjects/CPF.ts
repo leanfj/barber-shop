@@ -15,25 +15,30 @@ export default class CPF extends ValueObject<CPFProps> {
   }
 
   public static setValue(value: string): CPF {
-    const valueSchema = z.string().refine((cpf: string) => {
-      if (!cpf) {
-        return false;
-      }
+    const valueSchema = z.string().refine(
+      (cpf: string) => {
+        if (!cpf) {
+          return false;
+        }
 
-      cpf = cpf.replace(/[^\d]+/g, '');
+        cpf = cpf.replace(/[^\d]+/g, '');
 
-      if (CPF.isValueMoreThanElevenDigits(cpf)) {
-        return false;
-      }
-      if (CPF.isValueRepeated(cpf)) {
-        return false;
-      }
-      if (!CPF.isCPFWithValidDigits(cpf)) {
-        return false;
-      }
+        if (CPF.isValueMoreThanElevenDigits(cpf)) {
+          return false;
+        }
+        if (CPF.isValueRepeated(cpf)) {
+          return false;
+        }
+        if (!CPF.isCPFWithValidDigits(cpf)) {
+          return false;
+        }
 
-      return true;
-    }, 'CPF inválido');
+        return true;
+      },
+      {
+        message: 'CPF Invalido',
+      },
+    );
 
     const valueParsed = valueSchema.parse(value);
 

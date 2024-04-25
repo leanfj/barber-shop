@@ -51,7 +51,7 @@ model Cliente {
   estado          String?
   cep             String?
   cpf             String?
-  dataNascimento  DateTime
+  dataNascimento  DateTime?
   dataCadastro    DateTime @default(now())
   dataAtualizacao DateTime @default(now())
 

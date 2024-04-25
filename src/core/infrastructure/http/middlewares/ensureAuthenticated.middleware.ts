@@ -13,9 +13,8 @@ export function ensureAuthenticated(): any {
     response: Response,
     next: NextFunction,
   ) => {
-    const authToken = request.headers.authorization;
     const authCookieToken = request.cookies.token;
-    console.log({ authToken, authCookieToken });
+
     try {
       if (authCookieToken != null) {
         const secret = EnvConstants.JWT_SECRET;
